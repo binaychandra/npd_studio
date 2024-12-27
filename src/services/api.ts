@@ -1,6 +1,6 @@
 import { ProductOutput, WeeklyData, PredictionData } from '../types';
 
-const BASE_URL = 'https://binaychandra-fastapi-first.hf.space';
+const BASE_URL = 'https://binaychandra-npdstudio-predapi.hf.space'
 
 const handleApiResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
