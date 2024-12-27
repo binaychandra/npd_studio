@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProductForm, ProductOutput, ClientData } from '../types';
 import { ProductDetailsModal } from '../components/ProductDetailsModal';
-import { ProductSidebarCard } from '../components/ProductSidebarCard';
+import { ProductSidebarCard } from '../components/ProductSidebarcard';
 import { PredictionChart } from '../components/PredictionChart';
 import { fetchProductData } from '../services/api';
 
