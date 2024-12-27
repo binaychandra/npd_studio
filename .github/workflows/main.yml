@@ -16,9 +16,9 @@ jobs:
           lfs: true
       
       # Step 2: Push the `api` folder as a subtree (force push to Hugging Face)
-      - name: Push `api` folder to Hugging Face
+      - name: Push `hf_api` folder to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git subtree split --prefix=api -b temp-branch   # Split `api` folder into a branch
-          git push --force https://binaychandra:$HF_TOKEN@huggingface.co/spaces/binaychandra/gamepilot_hfspace temp-branch:main
+          git subtree split --prefix=hf_api -b temp-branch   # Split `hf_api` folder into a branch
+          git push --force https://binaychandra:$HF_TOKEN@huggingface.co/spaces/binaychandra/npdstudio_predapi temp-branch:main
