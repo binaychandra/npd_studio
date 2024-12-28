@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
           lfs: true
       
-      # Step 2: Push the `api` folder as a subtree (force push to Hugging Face)
+      # Step 2: Push the `hf_api` folder as a subtree (force push to Hugging Face)
       - name: Push `hf_api` folder to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
