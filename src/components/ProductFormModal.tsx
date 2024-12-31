@@ -56,7 +56,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-grow">
+        <div className="p-6 overflow-y-auto flex-grow scrollbar-thin">
           <div className="flex justify-end items-center mb-6">
             <div className="flex items-center gap-2">
               <span className={`text-sm ${!isDetailedModel ? 'text-blue-600' : 'text-gray-500'}`}>
