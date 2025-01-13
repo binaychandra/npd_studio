@@ -87,7 +87,7 @@ export const ProductFormCard: React.FC<ProductFormCardProps> = ({
           </button>
         </div>
       </div>
-
+      
       <div className="flex justify-end items-center mb-6">
         <div className="flex items-center gap-2">
           <span className={`text-sm ${!isDetailedModel ? 'text-blue-600' : 'text-gray-500'}`}>

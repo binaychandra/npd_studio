@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 import { ProductForm, ClientData } from '../types';
 import { FormGroup } from './FormGroup';
 import { FormField } from './FormField';
 import { CSVUploader } from './CSVUploader';
 import { DistributionChart } from './DistributionChart';
 import * as Switch from '@radix-ui/react-switch';
+import { queryAI } from '../services/api';
 
 interface ProductFormModalProps {
   form: ProductForm;
@@ -24,7 +25,39 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   onSave,
   onDistributionDataUpdate,
 }) => {
-  const [isDetailedModel, setIsDetailedModel] = useState(form.isDetailedModel || false);
+  const [isDetailedModel, setIsDetailedModel] = useState(false);
+  const [showAiQuery, setShowAiQuery] = useState(false);
+  const [aiQuery, setAiQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleDetailedModelToggle = (checked: boolean) => {
+    setIsDetailedModel(checked);
+    onUpdate({
+      ...form,
+      isDetailedModel: checked,
+    });
+  };
+
+  const handleAiQuery = async () => {
+    if (!aiQuery.trim()) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await queryAI(aiQuery);
+      if (response.status === 'success' && response.data) {
+        // Update form fields with AI response data
+        onUpdate({
+          ...form,
+          ...response.data
+        });
+      }
+    } catch (error) {
+      console.error('Failed to get AI response:', error);
+    } finally {
+      setIsLoading(false);
+      setShowAiQuery(false);
+    }
+  };
 
   const handleChange = (field: keyof ProductForm, value: string) => {
     onUpdate({
@@ -32,14 +65,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       [field]: field.includes('number') || field.includes('weight') || field.includes('price')
         ? Number(value) || 0
         : value,
-    });
-  };
-
-  const handleDetailedModelToggle = (checked: boolean) => {
-    setIsDetailedModel(checked);
-    onUpdate({
-      ...form,
-      isDetailedModel: checked,
     });
   };
 
@@ -57,7 +82,35 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         </div>
 
         <div className="p-6 overflow-y-auto flex-grow scrollbar-thin">
-          <div className="flex justify-end items-center mb-6">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setShowAiQuery(!showAiQuery)}
+                className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 text-sm"
+              >
+                Ask AI
+              </button>
+              {showAiQuery && (
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    value={aiQuery}
+                    onChange={(e) => setAiQuery(e.target.value)}
+                    placeholder="Ask about this product..."
+                    className="w-[300px] px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    onKeyPress={(e) => e.key === 'Enter' && handleAiQuery()}
+                  />
+                  <button
+                    onClick={handleAiQuery}
+                    disabled={isLoading}
+                    className="p-1 text-blue-500 hover:bg-blue-50 rounded-md transition-colors disabled:text-gray-400"
+                  >
+                    {isLoading ? '...' : <Send size={16} />}
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center gap-2">
               <span className={`text-sm ${!isDetailedModel ? 'text-blue-600' : 'text-gray-500'}`}>
                 General

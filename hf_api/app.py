@@ -12,7 +12,7 @@ app = FastAPI()
 # Configure CORS settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://npd-studio.vercel.app/"],  # List of allowed origins
+    allow_origins=["*"],  # Allow all origins in development
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
@@ -101,6 +101,41 @@ def run_xpipeline():
             break;
 
     return nb_output
+
+from pydantic import BaseModel
+
+class QueryRequest(BaseModel):
+    query: str
+
+@app.post("/query_ai")
+async def query_ai(request: QueryRequest):
+    try:
+        # TODO: Implement actual AI processing here
+        # For now, return sample product data
+        return {
+            "status": "success",
+            "data": {
+                "baseCode": "CHOC123",
+                "scenario": "New Product Launch",
+                "weekDate": "2025-01-15",
+                "levelOfSugar": "Medium",
+                "packGroup": "Premium",
+                "productRange": "Dark Chocolate",
+                "segment": "Luxury",
+                "superSegment": "Premium Confectionery",
+                "baseNumberInMultipack": 6,
+                "flavor": "Dark Chocolate with Sea Salt",
+                "choco": "Dark",
+                "salty": "Medium",
+                "weightPerUnitMl": 100,
+                "listPricePerUnitMl": 2.99
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e)
+        }
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):

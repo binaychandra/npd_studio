@@ -1,4 +1,4 @@
-import { ProductOutput, WeeklyData, PredictionData } from '../types';
+import { ProductOutput, WeeklyData, PredictionData, AIQueryResponse } from '../types';
 
 const BASE_URL = 'https://binaychandra-npdstudio-predapi.hf.space'
 
@@ -54,5 +54,24 @@ export const fetchProductData = async (productId: string, weekDate: string): Pro
       throw new Error(`Failed to fetch product data: ${error.message}`);
     }
     throw new Error('Failed to fetch product data');
+  }
+};
+
+export const queryAI = async (query: string): Promise<AIQueryResponse> => {
+  try {
+    const response = await fetch(`${BASE_URL}/query_ai`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+    return handleApiResponse<AIQueryResponse>(response);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to get AI response: ${error.message}`);
+    }
+    throw new Error('Failed to get AI response');
   }
 };
