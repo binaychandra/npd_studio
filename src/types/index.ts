@@ -58,3 +58,26 @@ export interface FormGroupProps {
   title: string;
   children: ReactNode;
 }
+
+export type PredictionData = Record<string, number>;
+
+export interface AIQueryResponse {
+  status: 'success' | 'error';
+  error?: string;
+  data?: {
+    baseCode?: string;
+    scenario?: string;
+    weekDate?: string;
+    levelOfSugar?: string;
+    packGroup?: string;
+    productRange?: string;
+    segment?: string;
+    superSegment?: string;
+    baseNumberInMultipack?: number;
+    flavor?: string;
+    choco?: string;
+    salty?: string;
+    weightPerUnitMl?: number;
+    listPricePerUnitMl?: number;
+  };
+}
