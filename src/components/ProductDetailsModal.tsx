@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { X, Send } from 'lucide-react';
-import { ProductForm, ClientData, AIQueryResponse } from '../types';
+import React from 'react';
+import { X } from 'lucide-react';
+import { ProductForm, ClientData } from '../types';
 import { DistributionChart } from './DistributionChart';
-import { queryAI } from '../services/api';
 
 interface ProductDetailsModalProps {
   form: ProductForm;
@@ -15,28 +14,6 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
   distributionData,
   onClose,
 }) => {
-  const [showAiQuery, setShowAiQuery] = useState(false);
-  const [aiQuery, setAiQuery] = useState('');
-  const [aiResponse, setAiResponse] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleAiQuery = async () => {
-    if (!aiQuery.trim()) return;
-    
-    setIsLoading(true);
-    try {
-      const response = await queryAI(aiQuery);
-      if (response.status === 'success') {
-        setAiResponse(response.answer);
-      } else {
-        setAiResponse(response.error || 'Failed to get response');
-      }
-    } catch (error) {
-      setAiResponse('Failed to get AI response');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const formGroups = [
     {
@@ -101,45 +78,6 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               </div>
             </div>
           ))}
-
-          {/* <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">AI Assistant</h3>
-              <button
-                onClick={() => setShowAiQuery(!showAiQuery)}
-                className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-              >
-                Ask AI for help
-              </button>
-            </div>
-            
-            {showAiQuery && (
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={aiQuery}
-                    onChange={(e) => setAiQuery(e.target.value)}
-                    placeholder="Ask about this product..."
-                    className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                    onKeyDown={(e) => e.key === 'Enter' && handleAiQuery()}
-                  />
-                  <button
-                    onClick={handleAiQuery}
-                    disabled={isLoading}
-                    className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:bg-gray-400 flex items-center gap-2"
-                  >
-                    {isLoading ? 'Sending...' : <Send size={16} />}
-                  </button>
-                </div>
-                {aiResponse && (
-                  <div className="p-3 bg-white rounded-md">
-                    <p className="text-gray-700">{aiResponse}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div> */}
 
           {distributionData.length > 0 && (
             <div className="bg-gray-50 p-4 rounded-lg">
