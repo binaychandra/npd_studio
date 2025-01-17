@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -33,14 +33,51 @@ const CHART_COLORS = [
   'rgb(168, 85, 247)'  // purple
 ];
 
-export const DistributionChart: React.FC<DistributionChartProps> = ({ data }) => {
-  const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ];
+const MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+];
 
-  const chartData = {
-    labels: months,
+const CHART_OPTIONS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: {
+    mode: 'index' as const,
+    intersect: false,
+  },
+  plugins: {
+    legend: {
+      position: 'top' as const,
+      labels: {
+        usePointStyle: true,
+        boxWidth: 6,
+      },
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      padding: 8,
+      bodySpacing: 4,
+    },
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: 'Distribution',
+      },
+    },
+    x: {
+      grid: {
+        display: false,
+      },
+    },
+  },
+};
+
+export const DistributionChart: React.FC<DistributionChartProps> = React.memo(({ data }) => {
+  const chartData = useMemo(() => ({
+    labels: MONTHS,
     datasets: data.map((client, index) => ({
       label: client.clientId,
       data: client.distribution,
@@ -51,44 +88,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({ data }) =>
       pointRadius: 4,
       pointHoverRadius: 6,
     })),
-  };
+  }), [data]);
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'index' as const,
-      intersect: false,
-    },
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: {
-          usePointStyle: true,
-          boxWidth: 6,
-        },
-      },
-      tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        padding: 8,
-        bodySpacing: 4,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Distribution',
-        },
-      },
-      x: {
-        grid: {
-          display: false,
-        },
-      },
-    },
-  };
-
-  return <Line data={chartData} options={chartOptions} />;
-};
+  return <Line data={chartData} options={CHART_OPTIONS} />;
+});
