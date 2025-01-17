@@ -5,9 +5,8 @@ import { FormGroup } from './FormGroup';
 import { FormField } from './FormField';
 import configYaml from '../config.yaml?raw';
 import yaml from 'yaml';
-import { CATEGORY_CODES, COUNTRY_CODES, CountryCode, CategoryCode } from '../utils/mappings';
-import { CSVUploader } from './CSVUploader';
-import { DistributionChart } from './DistributionChart';
+import { CATEGORY_CODES, COUNTRY_CODES } from '../utils/mappings';
+import { DistributionSection } from './DistributionSection';
 import * as Switch from '@radix-ui/react-switch';
 import { queryAI } from '../services/api';
 
@@ -38,11 +37,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [segmentOptions, setSegmentOptions] = useState<string[]>([]);
   const [superSegmentOptions, setSuperSegmentOptions] = useState<string[]>([]);
 
-  // Get the selected category code based on the form's category
-  const getCategoryCode = (category: string): CategoryCode => {
-    return CATEGORY_CODES[category as keyof typeof CATEGORY_CODES] || 'EUCO';
-  };
-
   useEffect(() => {
     try {
       const config = yaml.parse(configYaml);
@@ -52,46 +46,46 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       // Get sugar level options from the appropriate category section
       const levelOfSugar = config[countryCode]?.[categoryCode]?.level_of_sugar;
       if (levelOfSugar) {
-        const options = Object.values(levelOfSugar).flat();
+        const options = Object.values(levelOfSugar).flat() as string[];
         setSugarLevelOptions(options);
       } else {
-        setSugarLevelOptions([]); // No sugar level options for this category
+        setSugarLevelOptions([]);
       }
 
       // Get packgroup from the appropriate category section
       const packGroup = config[countryCode]?.[categoryCode]?.pack_group;
       if (packGroup) {
-        const options_pg = Object.values(packGroup).flat();
+        const options_pg = Object.values(packGroup).flat() as string[];
         setPackGroupOptions(options_pg);
       } else {
-        setPackGroupOptions([]); // No sugar level options for this category
+        setPackGroupOptions([]);
       }
 
       // Get product range from the appropriate category section
       const productRange = config[countryCode]?.[categoryCode]?.product_range;
       if (productRange) {
-        const options_pr = Object.values(productRange).flat();
+        const options_pr = Object.values(productRange).flat() as string[];
         setProductRangeOptions(options_pr);
       } else {
-        setProductRangeOptions([]); // No sugar level options for this category
+        setProductRangeOptions([]);
       }
 
       // Get segment from the appropriate category section
       const segment = config[countryCode]?.[categoryCode]?.segment;
       if (segment) {
-        const options_sg = Object.values(segment).flat();
+        const options_sg = Object.values(segment).flat() as string[];
         setSegmentOptions(options_sg);
       } else {
-        setSegmentOptions([]); // No sugar level options for this category
+        setSegmentOptions([]);
       }
 
       // Get super segment from the appropriate category section
       const superSegment = config[countryCode]?.[categoryCode]?.supersegment;
       if (superSegment) {
-        const options_ssg = Object.values(superSegment).flat();
+        const options_ssg = Object.values(superSegment).flat() as string[];
         setSuperSegmentOptions(options_ssg);
       } else {
-        setSuperSegmentOptions([]); // No sugar level options for this category
+        setSuperSegmentOptions([]);
       }
 
     } catch (error) {
@@ -102,7 +96,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setSegmentOptions([]);
       setSuperSegmentOptions([]);
     }
-  }, [form.country, form.category]); // Re-run when country or category changes
+  }, [form.country, form.category]);
 
   const handleDetailedModelToggle = (checked: boolean) => {
     setIsDetailedModel(checked);
@@ -119,7 +113,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     try {
       const response = await queryAI(aiQuery);
       if (response.status === 'success' && response.data) {
-        // Update form fields with AI response data
         onUpdate({
           ...form,
           ...response.data
@@ -230,25 +223,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </FormGroup>
 
             {isDetailedModel && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between items-start mb-4">
-                  <h4 className="text-sm font-semibold text-gray-700">Distribution Data</h4>
-                  <CSVUploader onDataLoaded={onDistributionDataUpdate} />
-                </div>
-                {distributionData.length > 0 && (
-                  <div className="h-64">
-                    <DistributionChart data={distributionData} />
-                  </div>
-                )}
-              </div>
+              <DistributionSection 
+                distributionData={distributionData}
+                onDistributionDataUpdate={onDistributionDataUpdate}
+              />
             )}
 
             <FormGroup title="Product Classification">
-              {/* <FormField
-                label="Pack Group"
-                value={form.packGroup}
-                onChange={(value) => handleChange('packGroup', value)}
-              /> */}
               <FormField
                 label="Pack Group"
                 type="select"
@@ -256,11 +237,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 onChange={(value) => handleChange('packGroup', value)}
                 options={packGroupOptions}
               />
-              {/* <FormField
-                label="Product Range"
-                value={form.productRange}
-                onChange={(value) => handleChange('productRange', value)}
-              /> */}
               <FormField
                 label="Product Range"
                 type="select"
@@ -282,17 +258,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 onChange={(value) => handleChange('superSegment', value)}
                 options={superSegmentOptions}
               />
-              {/* <FormField
-                label="Segment"
-                value={form.segment}
-                onChange={(value) => handleChange('segment', value)}
-              />
-              
-              <FormField
-                label="Super Segment"
-                value={form.superSegment}
-                onChange={(value) => handleChange('superSegment', value)}
-              /> */}
             </FormGroup>
 
             <FormGroup title="Product Specifications">

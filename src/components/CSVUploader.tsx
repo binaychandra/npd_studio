@@ -1,5 +1,5 @@
-import React, { ChangeEvent } from 'react';
-import { Upload } from 'lucide-react';
+import React, { ChangeEvent, useState } from 'react';
+import { Upload, Loader } from 'lucide-react';
 import { ClientData } from '../types';
 
 interface CSVUploaderProps {
@@ -7,37 +7,67 @@ interface CSVUploaderProps {
 }
 
 export const CSVUploader: React.FC<CSVUploaderProps> = ({ onDataLoaded }) => {
-  const parseCSV = (content: string) => {
-    const lines = content.trim().split('\n');
-    const clients: ClientData[] = [];
+  const [isLoading, setIsLoading] = useState(false);
 
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].trim().split(',');
-      if (values.length === 13) {
-        clients.push({
-          clientId: values[0],
-          distribution: values.slice(1).map(Number)
-        });
-      }
-    }
-    return clients;
+  const parseCSV = async (content: string): Promise<ClientData[]> => {
+    return new Promise((resolve) => {
+      // Use a timeout to move parsing off the main thread
+      setTimeout(() => {
+        const lines = content.trim().split('\n');
+        const clients: ClientData[] = [];
+        const batchSize = 1000;
+        let currentBatch: ClientData[] = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].trim().split(',');
+          if (values.length === 13) {
+            // Convert values to numbers once and store in a temporary array
+            const distributionValues = values.slice(1).map(Number);
+            
+            currentBatch.push({
+              clientId: values[0],
+              distribution: distributionValues
+            });
+
+            // Process in batches to avoid blocking the main thread
+            if (currentBatch.length === batchSize) {
+              clients.push(...currentBatch);
+              currentBatch = [];
+            }
+          }
+        }
+
+        // Add remaining items
+        if (currentBatch.length > 0) {
+          clients.push(...currentBatch);
+        }
+
+        resolve(clients);
+      }, 0);
+    });
   };
 
-  const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const data = parseCSV(content);
-        onDataLoaded(data);
-      } catch (error) {
-        console.error('Error parsing file:', error);
-      }
-    };
-    reader.readAsText(file);
+    setIsLoading(true);
+    try {
+      const content = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsText(file);
+      });
+
+      const data = await parseCSV(content);
+      onDataLoaded(data);
+    } catch (error) {
+      console.error('Error parsing file:', error);
+    } finally {
+      setIsLoading(false);
+      // Reset the input to allow uploading the same file again
+      event.target.value = '';
+    }
   };
 
   return (
@@ -48,13 +78,20 @@ export const CSVUploader: React.FC<CSVUploaderProps> = ({ onDataLoaded }) => {
         onChange={handleFileUpload}
         className="hidden"
         id="csv-upload"
+        disabled={isLoading}
       />
       <label
         htmlFor="csv-upload"
-        className="flex items-center gap-2 cursor-pointer"
+        className={`flex items-center gap-2 ${isLoading ? 'cursor-wait' : 'cursor-pointer'}`}
       >
-        <Upload className="w-4 h-4 text-gray-500" />
-        <span className="text-sm text-gray-600">Upload Distribution</span>
+        {isLoading ? (
+          <Loader className="w-4 h-4 text-blue-500 animate-spin" />
+        ) : (
+          <Upload className="w-4 h-4 text-gray-500" />
+        )}
+        <span className="text-sm text-gray-600">
+          {isLoading ? 'Processing...' : 'Upload Distribution'}
+        </span>
       </label>
     </div>
   );
