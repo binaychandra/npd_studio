@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Send } from 'lucide-react';
 import { ProductForm, ClientData } from '../types';
 import { FormGroup } from './FormGroup';
 import { FormField } from './FormField';
+import configYaml from '../config.yaml?raw';
+import yaml from 'yaml';
+import { CATEGORY_CODES, COUNTRY_CODES, CountryCode, CategoryCode } from '../utils/mappings';
 import { CSVUploader } from './CSVUploader';
 import { DistributionChart } from './DistributionChart';
 import * as Switch from '@radix-ui/react-switch';
@@ -29,6 +32,77 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [showAiQuery, setShowAiQuery] = useState(false);
   const [aiQuery, setAiQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [sugarLevelOptions, setSugarLevelOptions] = useState<string[]>([]);
+  const [packGroupOptions, setPackGroupOptions] = useState<string[]>([]);
+  const [productRangeOptions, setProductRangeOptions] = useState<string[]>([]);
+  const [segmentOptions, setSegmentOptions] = useState<string[]>([]);
+  const [superSegmentOptions, setSuperSegmentOptions] = useState<string[]>([]);
+
+  // Get the selected category code based on the form's category
+  const getCategoryCode = (category: string): CategoryCode => {
+    return CATEGORY_CODES[category as keyof typeof CATEGORY_CODES] || 'EUCO';
+  };
+
+  useEffect(() => {
+    try {
+      const config = yaml.parse(configYaml);
+      const countryCode = COUNTRY_CODES[form.country as keyof typeof COUNTRY_CODES] || 'GB01';
+      const categoryCode = CATEGORY_CODES[form.category as keyof typeof CATEGORY_CODES] || 'EUCO';
+
+      // Get sugar level options from the appropriate category section
+      const levelOfSugar = config[countryCode]?.[categoryCode]?.level_of_sugar;
+      if (levelOfSugar) {
+        const options = Object.values(levelOfSugar).flat();
+        setSugarLevelOptions(options);
+      } else {
+        setSugarLevelOptions([]); // No sugar level options for this category
+      }
+
+      // Get packgroup from the appropriate category section
+      const packGroup = config[countryCode]?.[categoryCode]?.pack_group;
+      if (packGroup) {
+        const options_pg = Object.values(packGroup).flat();
+        setPackGroupOptions(options_pg);
+      } else {
+        setPackGroupOptions([]); // No sugar level options for this category
+      }
+
+      // Get product range from the appropriate category section
+      const productRange = config[countryCode]?.[categoryCode]?.product_range;
+      if (productRange) {
+        const options_pr = Object.values(productRange).flat();
+        setProductRangeOptions(options_pr);
+      } else {
+        setProductRangeOptions([]); // No sugar level options for this category
+      }
+
+      // Get segment from the appropriate category section
+      const segment = config[countryCode]?.[categoryCode]?.segment;
+      if (segment) {
+        const options_sg = Object.values(segment).flat();
+        setSegmentOptions(options_sg);
+      } else {
+        setSegmentOptions([]); // No sugar level options for this category
+      }
+
+      // Get super segment from the appropriate category section
+      const superSegment = config[countryCode]?.[categoryCode]?.supersegment;
+      if (superSegment) {
+        const options_ssg = Object.values(superSegment).flat();
+        setSuperSegmentOptions(options_ssg);
+      } else {
+        setSuperSegmentOptions([]); // No sugar level options for this category
+      }
+
+    } catch (error) {
+      console.error('Error parsing config:', error);
+      setSugarLevelOptions([]);
+      setPackGroupOptions([]);
+      setProductRangeOptions([]);
+      setSegmentOptions([]);
+      setSuperSegmentOptions([]);
+    }
+  }, [form.country, form.category]); // Re-run when country or category changes
 
   const handleDetailedModelToggle = (checked: boolean) => {
     setIsDetailedModel(checked);
@@ -148,8 +222,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               />
               <FormField
                 label="Level of Sugar"
+                type="select"
                 value={form.levelOfSugar}
                 onChange={(value) => handleChange('levelOfSugar', value)}
+                options={sugarLevelOptions}
               />
             </FormGroup>
 
@@ -168,26 +244,55 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             )}
 
             <FormGroup title="Product Classification">
-              <FormField
+              {/* <FormField
                 label="Pack Group"
                 value={form.packGroup}
                 onChange={(value) => handleChange('packGroup', value)}
-              />
+              /> */}
               <FormField
+                label="Pack Group"
+                type="select"
+                value={form.packGroup}
+                onChange={(value) => handleChange('packGroup', value)}
+                options={packGroupOptions}
+              />
+              {/* <FormField
                 label="Product Range"
                 value={form.productRange}
                 onChange={(value) => handleChange('productRange', value)}
+              /> */}
+              <FormField
+                label="Product Range"
+                type="select"
+                value={form.productRange}
+                onChange={(value) => handleChange('productRange', value)}
+                options={productRangeOptions}
               />
               <FormField
+                label="Segment"
+                type="select"
+                value={form.segment}
+                onChange={(value) => handleChange('segment', value)}
+                options={segmentOptions}
+              />
+              <FormField
+                label="Super Segment"
+                type="select"
+                value={form.superSegment}
+                onChange={(value) => handleChange('superSegment', value)}
+                options={superSegmentOptions}
+              />
+              {/* <FormField
                 label="Segment"
                 value={form.segment}
                 onChange={(value) => handleChange('segment', value)}
               />
+              
               <FormField
                 label="Super Segment"
                 value={form.superSegment}
                 onChange={(value) => handleChange('superSegment', value)}
-              />
+              /> */}
             </FormGroup>
 
             <FormGroup title="Product Specifications">
