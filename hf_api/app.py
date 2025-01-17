@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -102,7 +103,6 @@ def run_xpipeline():
 
     return nb_output
 
-from pydantic import BaseModel
 
 class QueryRequest(BaseModel):
     query: str
@@ -118,7 +118,7 @@ async def query_ai(request: QueryRequest):
                 "baseCode": "CHOC123",
                 "scenario": "New Product Launch",
                 "weekDate": "2025-01-15",
-                "levelOfSugar": "Medium",
+                "levelOfSugar": "STANDARD",
                 "packGroup": "Premium",
                 "productRange": "Dark Chocolate",
                 "segment": "Luxury",

@@ -53,6 +53,8 @@ function App() {
         weightPerUnitMl: 0,
         listPricePerUnitMl: 0,
         isMinimized: false,
+        country: formState.selectedCountry || '',
+        category: formState.selectedCategory || '',
       };
       setFormState(prev => ({ ...prev, forms: [initialForm] }));
     }
@@ -86,6 +88,8 @@ function App() {
           onDistributionDataUpdate={handleDistributionDataUpdate}
           onBack={() => moveToStep(2)}
           onSubmit={handleSubmit}
+          selectedCountry={formState.selectedCountry}
+          selectedCategory={formState.selectedCategory}
         />
       )}
 

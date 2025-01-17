@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { ProductFormModal } from '../components/ProductFormModal';
@@ -13,6 +13,8 @@ interface ProductDetailsProps {
   onDistributionDataUpdate: (formId: string, data: ClientData[]) => void;
   onBack: () => void;
   onSubmit: () => void;
+  selectedCountry: string | null;
+  selectedCategory: string | null;
 }
 
 export const ProductDetails: React.FC<ProductDetailsProps> = ({
@@ -22,7 +24,22 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   onDistributionDataUpdate,
   onBack,
   onSubmit,
+  selectedCountry,
+  selectedCategory,
 }) => {
+  // Update forms when country or category changes
+  useEffect(() => {
+    if (forms.length > 0) {
+      const updatedForms = forms.map(form => ({
+        ...form,
+        country: selectedCountry || '',
+        category: selectedCategory || '',
+        levelOfSugar: '', // Reset sugar level when category changes
+      }));
+      onFormsUpdate(updatedForms);
+    }
+  }, [selectedCountry, selectedCategory, forms, onFormsUpdate]);
+
   const [editingForm, setEditingForm] = useState<ProductForm | null>(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -45,6 +62,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       listPricePerUnitMl: 0,
       isMinimized: false,
       isDetailedModel: false,
+      country: selectedCountry || '',
+      category: selectedCategory || '',
     };
     setEditingForm(newForm);
     setShowModal(true);
@@ -57,6 +76,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       baseCode: `Clone of ${form.baseCode}`,
       scenario: `Clone of ${form.scenario}`,
       isDetailedModel: false, // Reset to general model for cloned card
+      country: selectedCountry || form.country || '', // Use selected country or original form's country
+      category: selectedCategory || form.category || '', // Use selected category or original form's category
     };
     setEditingForm(clonedForm);
     setShowModal(true);

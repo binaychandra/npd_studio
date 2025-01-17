@@ -35,6 +35,8 @@ export interface ProductForm {
   listPricePerUnitMl: number;
   isMinimized: boolean;
   isDetailedModel?: boolean;
+  country?: string;
+  category?: string;
 }
 
 export interface WeeklyData {
