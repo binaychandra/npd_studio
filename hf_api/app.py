@@ -59,6 +59,65 @@ def get_prediction_from_jobrun():
         print("Status Code:", response.status_code)
         return response.text
 
+@app.get("/get_prediction_on_userinput")
+def run_pred_pipeline():
+    print(f"Running the pipeline : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
+    
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    # Pipeline details
+    pipeline_id = "403360183892362"
+    json_data = None 
+    payload = {
+        'job_id': pipeline_id,
+        'notebook_params': {
+            "salesorg_cd": "GB01",
+            "category_mdlz": "EUCO",
+            "basecode": "GB10002",
+            "scenario": "sc_1",
+            "week_date": "2025-04-28",
+            "level_of_sugar": "STANDARD",
+            "pack_group": "CHOC ADULT SGLS",
+            "product_range": "MILKA",
+            "segment": "CHOC SGLS",
+            "supersegment": "STANDARD CHOCOLATE",
+            "base_number_in_multipack": "SINGLE",
+            "flavour": "CITRUS",
+            "choco": "MILK",
+            "salty": "NO",
+            "weight_per_unit_mdlz": "0.28",
+            "list_price_per_unit_mdlz": "1.75"}
+    }
+
+    # Trigger the run
+    api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/run-now"
+    response = requests.post(api_url, headers=headers, data=json.dumps(payload))
+    response_json = response.json()
+    print(f"\nPrediction pipeline started with details : {response_json}\n")
+    run_id = response_json["run_id"]
+    #pred_out = pd.DataFrame()
+    while True:
+        time.sleep(2)
+        api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/runs/get?run_id={run_id}"
+        response = requests.get(api_url, headers=headers)
+        response_json = response.json()
+        task_run_id = response_json['tasks'][0]['run_id']
+        run_status = response_json["state"]["life_cycle_state"]
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Status : {run_status}")
+        job_status = response_json["state"].get('result_state')
+        if job_status == 'SUCCESS':
+            api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/runs/get-output"
+            payload = dict(run_id=task_run_id)
+            response = requests.get(api_url, headers=headers, data=json.dumps(payload))
+            output_json = json.loads(response.json()['notebook_output']['result'])
+            nb_output = output_json['prediction']
+            break;
+
+    return output_json
+
+
 @app.get("/get_prediction_from_databricks")
 def run_xpipeline():
     print(f"Running the pipeline : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
