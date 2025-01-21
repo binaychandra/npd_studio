@@ -112,7 +112,7 @@ def run_pred_pipeline():
             payload = dict(run_id=task_run_id)
             response = requests.get(api_url, headers=headers, data=json.dumps(payload))
             output_json = json.loads(response.json()['notebook_output']['result'])
-            nb_output = output_json['prediction']
+            #nb_output = output_json['prediction']
             break;
 
     return output_json
