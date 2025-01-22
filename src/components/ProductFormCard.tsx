@@ -173,7 +173,6 @@ export const ProductFormCard: React.FC<ProductFormCardProps> = ({
         <FormGroup title="Product Specifications">
           <FormField
             label="Base Number in Multipack"
-            type="number"
             value={form.baseNumberInMultipack}
             onChange={(value) => handleChange('baseNumberInMultipack', value)}
           />
