@@ -27,7 +27,7 @@ export interface ProductForm {
   productRange: string;
   segment: string;
   superSegment: string;
-  baseNumberInMultipack: number;
+  baseNumberInMultipack: string;
   flavor: string;
   choco: string;
   salty: string;
@@ -75,11 +75,20 @@ export interface AIQueryResponse {
     productRange?: string;
     segment?: string;
     superSegment?: string;
-    baseNumberInMultipack?: number;
+    baseNumberInMultipack?: string;
     flavor?: string;
     choco?: string;
     salty?: string;
     weightPerUnitMl?: number;
     listPricePerUnitMl?: number;
+  };
+}
+
+export interface ProductSubmissionResponse {
+  status: 'success' | 'error';
+  error?: string;
+  data?: {
+    id: string;
+    predictions: WeeklyData[];
   };
 }

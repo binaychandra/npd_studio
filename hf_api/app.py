@@ -7,6 +7,7 @@ from datetime import datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi import Query
 
 app = FastAPI()
 
@@ -26,6 +27,24 @@ TASK_RUNID = "1054089068841244"
 
 # from dotenv import load_dotenv, find_dotenv
 # _ = load_dotenv(find_dotenv()) # read local .env file
+
+class PredictionInput(BaseModel):
+    country: str
+    category: str
+    basecode: str
+    scenario: str
+    weekDate: str
+    packGroup: str
+    productRange: str
+    baseNumberInMultipack: str
+    segment: str
+    superSegment: str
+    salty: str
+    choco: str
+    flavor: str
+    levelOfSugar: str
+    listPricePerUnitMl: float
+    weightPerUnitMl: float
 
 @app.get("/")
 def read_root():
@@ -60,7 +79,8 @@ def get_prediction_from_jobrun():
         return response.text
 
 @app.get("/get_prediction_on_userinput")
-def run_pred_pipeline():
+def run_pred_pipeline(input: PredictionInput):
+    print(f"Here is the input dict : {input.dict()}")
     print(f"Running the pipeline : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
     
     headers = {
@@ -72,23 +92,25 @@ def run_pred_pipeline():
     json_data = None 
     payload = {
         'job_id': pipeline_id,
-        'notebook_params': {
-            "salesorg_cd": "GB01",
-            "category_mdlz": "EUCO",
-            "basecode": "GB10002",
-            "scenario": "sc_1",
-            "week_date": "2025-04-28",
-            "level_of_sugar": "STANDARD",
-            "pack_group": "CHOC ADULT SGLS",
-            "product_range": "MILKA",
-            "segment": "CHOC SGLS",
-            "supersegment": "STANDARD CHOCOLATE",
-            "base_number_in_multipack": "SINGLE",
-            "flavour": "CITRUS",
-            "choco": "MILK",
-            "salty": "NO",
-            "weight_per_unit_mdlz": "0.28",
-            "list_price_per_unit_mdlz": "1.75"}
+        'notebook_params': input.dict()
+        # 'notebook_params': {
+        #     "salesorg_cd": "GB01",
+        #     "category_mdlz": "EUCO",
+        #     "basecode": "GB10002",
+        #     "scenario": "sc_1",
+        #     "week_date": "2025-04-28",
+        #     "level_of_sugar": "STANDARD",
+        #     "pack_group": "CHOC ADULT SGLS",
+        #     "product_range": "MILKA",
+        #     "segment": "CHOC SGLS",
+        #     "supersegment": "STANDARD CHOCOLATE",
+        #     "base_number_in_multipack": "SINGLE",
+        #     "flavour": "CITRUS",
+        #     "choco": "MILK",
+        #     "salty": "NO",
+        #     "weight_per_unit_mdlz": "0.28",
+        #     "list_price_per_unit_mdlz": "1.75"
+        #     }
     }
 
     # Trigger the run
@@ -174,20 +196,20 @@ async def query_ai(request: QueryRequest):
         return {
             "status": "success",
             "data": {
-                "baseCode": "CHOC123",
-                "scenario": "New Product Launch",
-                "weekDate": "2025-01-15",
+                "baseCode": "GB10002",
+                "scenario": "scenatio_01",
+                "weekDate": "2025-04-28",
                 "levelOfSugar": "STANDARD",
-                "packGroup": "Premium",
-                "productRange": "Dark Chocolate",
-                "segment": "Luxury",
-                "superSegment": "Premium Confectionery",
-                "baseNumberInMultipack": 6,
-                "flavor": "Dark Chocolate with Sea Salt",
-                "choco": "Dark",
-                "salty": "Medium",
-                "weightPerUnitMl": 100,
-                "listPricePerUnitMl": 2.99
+                "packGroup": "CHOC ADULT SGLS",
+                "productRange": "MILKA",
+                "segment": "CHOC SGLS",
+                "superSegment": "STANDARD CHOCOLATE",
+                "baseNumberInMultipack": "SINGLE",
+                "flavor": "CITRUS",
+                "choco": "MILK",
+                "salty": "NO",
+                "weightPerUnitMl": 0.28,
+                "listPricePerUnitMl": 1.75
             }
         }
     except Exception as e:

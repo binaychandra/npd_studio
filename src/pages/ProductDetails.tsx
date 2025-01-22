@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { ProductFormModal } from '../components/ProductFormModal';
-import { ProductForm, ClientData } from '../types';
+import { ProductForm, ClientData, ProductSubmissionResponse } from '../types';
+import { submitAllProducts } from '../services/api';
 
 const MAX_CARDS = 6;
 
@@ -28,20 +29,36 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   selectedCategory,
 }) => {
   // Update forms when country or category changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (forms.length > 0) {
+    if (forms.length > 0 && (selectedCountry !== null || selectedCategory !== null)) {
       const updatedForms = forms.map(form => ({
         ...form,
-        country: selectedCountry || '',
-        category: selectedCategory || '',
-        levelOfSugar: '', // Reset sugar level when category changes
+        country: selectedCountry || form.country || '',
+        category: selectedCategory || form.category || '',
+        ...(selectedCategory !== null && form.category !== selectedCategory ? { levelOfSugar: '' } : {}),
       }));
-      onFormsUpdate(updatedForms);
+      
+      // Check if there are actual changes to avoid unnecessary updates
+      const hasChanges = updatedForms.some((updatedForm, index) => {
+        const originalForm = forms[index];
+        return (
+          updatedForm.country !== originalForm.country ||
+          updatedForm.category !== originalForm.category ||
+          updatedForm.levelOfSugar !== originalForm.levelOfSugar
+        );
+      });
+
+      if (hasChanges) {
+        onFormsUpdate(updatedForms);
+      }
     }
-  }, [selectedCountry, selectedCategory, forms, onFormsUpdate]);
+  }, [selectedCountry, selectedCategory]); // Remove forms and onFormsUpdate from dependencies
 
   const [editingForm, setEditingForm] = useState<ProductForm | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const createNewForm = () => {
     const newForm: ProductForm = {
@@ -54,7 +71,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       productRange: '',
       segment: '',
       superSegment: '',
-      baseNumberInMultipack: 0,
+      baseNumberInMultipack: '',
       flavor: '',
       choco: '',
       salty: '',
@@ -139,20 +156,52 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
         ))}
       </div>
 
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={onBack}
-          className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-        >
-          Back
-        </button>
-        <button
-          onClick={onSubmit}
-          disabled={forms.length === 0}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
-        >
-          Submit
-        </button>
+      <div className="flex flex-col items-center gap-4">
+        {submitError && (
+          <div className="text-red-500 text-sm mb-2">
+            Error: {submitError}
+          </div>
+        )}
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={onBack}
+            disabled={isSubmitting}
+            className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            Back
+          </button>
+          <button
+            onClick={async () => {
+              setSubmitError(null);
+              setIsSubmitting(true);
+              try {
+                const responses = await submitAllProducts(forms);
+                // Check if any submission failed
+                const failedSubmissions = responses.filter(r => r.status === 'error');
+                if (failedSubmissions.length > 0) {
+                  setSubmitError(`Failed to submit ${failedSubmissions.length} products`);
+                  return;
+                }
+                onSubmit();
+              } catch (error) {
+                setSubmitError(error instanceof Error ? error.message : 'Failed to submit products');
+              } finally {
+                setIsSubmitting(false);
+              }
+            }}
+            disabled={forms.length === 0 || isSubmitting}
+            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="animate-spin" size={16} />
+                Submitting...
+              </>
+            ) : (
+              'Submit'
+            )}
+          </button>
+        </div>
       </div>
 
       {showModal && editingForm && (
