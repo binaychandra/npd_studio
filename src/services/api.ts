@@ -91,7 +91,7 @@ export const queryAI = async (query: string): Promise<AIQueryResponse> => {
 export const submitProductDetails = async (form: ProductForm): Promise<ProductSubmissionResponse> => {
   try {
     console.log('Submitting product details with form:', form);
-    const response = await fetch(`${BASE_URL}/get_prediction_on_user_input`, {
+    const response = await fetch(`${BASE_URL}/get_prediction_on_userinput`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
