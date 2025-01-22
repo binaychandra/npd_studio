@@ -78,7 +78,7 @@ def get_prediction_from_jobrun():
         print("Status Code:", response.status_code)
         return response.text
 
-@app.get("/get_prediction_on_userinput")
+@app.post("/get_prediction_on_userinput")
 def run_pred_pipeline(input: PredictionInput):
     print(f"Here is the input dict : {input.dict()}")
     print(f"Running the pipeline : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
