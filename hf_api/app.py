@@ -29,6 +29,8 @@ TASK_RUNID = "1054089068841244"
 # _ = load_dotenv(find_dotenv()) # read local .env file
 
 class PredictionInput(BaseModel):
+    id:str
+    isMinimized: bool
     country: str
     category: str
     basecode: str
