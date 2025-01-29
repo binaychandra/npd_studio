@@ -129,7 +129,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const handleChange = (field: keyof ProductForm, value: string) => {
     onUpdate({
       ...form,
-      [field]: field.includes('number') || field.includes('weight') || field.includes('price')
+      [field]: (field.includes('weight') || field.includes('price'))
         ? Number(value) || 0
         : value,
     });

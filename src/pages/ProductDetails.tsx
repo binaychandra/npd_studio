@@ -95,6 +95,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       isDetailedModel: false, // Reset to general model for cloned card
       country: selectedCountry || form.country || '', // Use selected country or original form's country
       category: selectedCategory || form.category || '', // Use selected category or original form's category
+      baseNumberInMultipack: form.baseNumberInMultipack || '', // Ensure baseNumberInMultipack is string
     };
     setEditingForm(clonedForm);
     setShowModal(true);
@@ -182,6 +183,32 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                   setSubmitError(`Failed to submit ${failedSubmissions.length} products`);
                   return;
                 }
+                
+                // Update forms with prediction data
+                const updatedForms = forms.map((form, index) => {
+                  const response = responses[index];
+                  console.log(`Processing response for form ${form.id}:`, response);
+                  
+                  if (response.status === 'success' && response.data) {
+                    // Extract the prediction data from the response
+                    const predictionData = {
+                      ASDA: response.data.predictions.ASDA || {},
+                      MORRISONS: response.data.predictions.MORRISONS || {},
+                      SAINSBURYS: response.data.predictions.SAINSBURYS || {},
+                      TESCO: response.data.predictions.TESCO || {},
+                      TOTAL_MARKET: response.data.predictions.TOTAL_MARKET || {}
+                    };
+                    console.log(`Extracted prediction data for form ${form.id}:`, predictionData);
+                    return {
+                      ...form,
+                      predictionData
+                    };
+                  }
+                  return form;
+                });
+                
+                console.log('Updated forms with prediction data:', updatedForms);
+                onFormsUpdate(updatedForms);
                 onSubmit();
               } catch (error) {
                 setSubmitError(error instanceof Error ? error.message : 'Failed to submit products');

@@ -37,17 +37,30 @@ export interface ProductForm {
   isDetailedModel?: boolean;
   country?: string;
   category?: string;
+  predictionData?: PredictionResponse;
 }
 
-export interface WeeklyData {
-  week: string;
-  value: number;
+export interface RetailerData {
+  [month: string]: number;
 }
+
+export interface PredictionResponse {
+  ASDA: RetailerData;
+  MORRISONS: RetailerData;
+  SAINSBURYS: RetailerData;
+  TESCO: RetailerData;
+  TOTAL_MARKET: RetailerData;
+}
+
+// export interface WeeklyData {
+//   week: string;
+//   value: number;
+// }
 
 export interface ProductOutput {
   productId: string;
   scenarioName: string;
-  weeklyData: WeeklyData[];
+  predictionData: PredictionResponse | null;
 }
 
 export interface FormState {
@@ -61,7 +74,10 @@ export interface FormGroupProps {
   children: ReactNode;
 }
 
-export type PredictionData = Record<string, number>;
+// Old format prediction data
+export type PredictionData = {
+  [key: string]: number;
+} | PredictionResponse;
 
 export interface AIQueryResponse {
   status: 'success' | 'error';
@@ -89,6 +105,6 @@ export interface ProductSubmissionResponse {
   error?: string;
   data?: {
     id: string;
-    predictions: WeeklyData[];
+    predictions: PredictionResponse;
   };
 }
