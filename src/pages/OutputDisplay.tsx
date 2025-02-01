@@ -86,9 +86,9 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
   }, [selectedOutput]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex fixed inset-0">
       {/* Sidebar */}
-      <div className="w-80 bg-white border-r flex flex-col h-screen">
+      <div className="w-80 bg-white border-r flex flex-col">
         <div className="p-4 border-b flex-shrink-0">
           <h2 className="text-lg font-semibold">Products</h2>
         </div>
@@ -117,18 +117,17 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
+      <div className="flex-1 p-6 overflow-y-auto flex flex-col">
         {error ? (
           <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
             {error}
           </div>
         ) : selectedOutput ? (
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-lg shadow">
+          <div className="space-y-6 bg-white p-6 rounded-lg shadow flex-1 min-h-0">
               <h2 className="text-xl font-semibold mb-4">
                 {selectedForm?.scenario || 'Unnamed Scenario'}
               </h2>
-              <div className="h-[400px]">
+              <div className="h-[400px] overflow-hidden">
                 {selectedOutput.predictionData ? (
                   <PredictionChart
                     data={selectedOutput.predictionData}
@@ -140,13 +139,12 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                   </div>
                 )}
               </div>
-              <div className="text-sm text-gray-500 mt-2">
+              {/* <div className="text-sm text-gray-500 mt-2">
                 <h3 className="font-semibold mb-2">Raw Data:</h3>
                 <pre className="bg-gray-50 p-4 rounded-lg overflow-auto max-h-60">
                   {JSON.stringify(selectedOutput.predictionData || {}, null, 2)}
                 </pre>
-              </div>
-            </div>
+              </div> */}
           </div>
         ) : (
           <div className="flex items-center justify-center h-64 text-gray-500">

@@ -33,11 +33,20 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
   console.log('PredictionChart received scenarioName:', scenarioName);
 
   // Validate data
-  if (!data || !data.TOTAL_MARKET) {
-    console.error('Invalid prediction data:', data);
+  // Validate data structure and numeric values
+  const isValidData = data?.TOTAL_MARKET &&
+    Object.values(data).every(retailer =>
+      Object.values(retailer).every(val => typeof val === 'number')
+    );
+
+  if (!isValidData) {
+    console.error('Invalid prediction data structure:', data);
     return (
       <div className="flex items-center justify-center h-full text-red-500">
-        No valid prediction data available
+        Invalid data format. Please check API response.
+        <div className="text-xs mt-2">
+          Expected format: {"{ RETAILER: { MONTH: number } }"}
+        </div>
       </div>
     );
   }
@@ -45,13 +54,18 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
   try {
     // Get all months from the data and sort them chronologically
     const months = Object.keys(data.TOTAL_MARKET).sort((a, b) => {
-      const [aMonth, aYear] = a.split('-');
-      const [bMonth, bYear] = b.split('-');
-      if (aYear !== bYear) {
-        return parseInt(aYear) - parseInt(bYear);
+      try {
+        const [aMonth, aYear] = a.split('-');
+        const [bMonth, bYear] = b.split('-');
+        if (aYear !== bYear) {
+          return parseInt(aYear) - parseInt(bYear);
+        }
+        return monthOrder.indexOf(aMonth.substring(0, 3)) - monthOrder.indexOf(bMonth.substring(0, 3));
+      } catch (error) {
+        console.error('Error sorting months:', error);
+        return 0; // Fallback to original order
       }
-      return monthOrder.indexOf(aMonth.substring(0, 3)) - monthOrder.indexOf(bMonth.substring(0, 3));
-    });
+      });
 
     if (months.length === 0) {
       console.error('No months data available');
@@ -157,7 +171,11 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
 
     console.log('Chart Data:', chartData);
     console.log('Chart Options:', options);
-    return <Line data={chartData} options={options} />;
+    return (
+      <div className="h-full w-full border border-gray-200 rounded-lg p-4">
+        <Line data={chartData} options={options} />
+      </div>
+    );
   } catch (error) {
     console.error('Error creating chart:', error);
     return (

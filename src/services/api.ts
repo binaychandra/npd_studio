@@ -147,7 +147,9 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
 
     // Validate the response data structure
     if (responseData.status === 'success' && responseData.data) {
+      console.log('Valid response data found:=============, responseData.data:', responseData.data);
       const { predictions } = responseData.data;
+      console.log(predictions);
       
       // Validate that all required retailers exist in the predictions
       const hasAllRetailers = (
@@ -178,7 +180,12 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
         error: undefined,
         data: {
           id: responseData.data.id,
-          predictions: predictions
+          predictions: responseData.data.predictions,
+          // Return updated form data to propagate to state
+          form: {
+            ...transformedData,
+            predictionData: predictions
+          }
         }
       };
     }
