@@ -1,10 +1,11 @@
 import {
   ProductOutput,
-  WeeklyData,
   PredictionData,
   AIQueryResponse,
   ProductForm,
-  ProductSubmissionResponse
+  ProductSubmissionResponse,
+  PredictionResponse,
+  RetailerData
 } from '../types';
 
 const BASE_URL = 'https://binaychandra-npdstudio-predapi.hf.space'
@@ -19,24 +20,24 @@ const handleApiResponse = async <T>(response: Response): Promise<T> => {
   return responseData;
 };
 
-export const fetchPredictionData = async (): Promise<PredictionData> => {
-  try {
-    console.log('Fetching prediction data from API');
-    const response = await fetch(`${BASE_URL}/get_prediction`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
-    return handleApiResponse<PredictionData>(response);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to fetch prediction data: ${error.message}`);
-    }
-    throw new Error('Failed to fetch prediction data');
-  }
-};
+// export const fetchPredictionData = async (): Promise<PredictionData> => {
+//   try {
+//     console.log('Fetching prediction data from API');
+//     const response = await fetch(`${BASE_URL}/get_prediction`, {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Accept': 'application/json',
+//       },
+//     });
+//     return handleApiResponse<PredictionData>(response);
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       throw new Error(`Failed to fetch prediction data: ${error.message}`);
+//     }
+//     throw new Error('Failed to fetch prediction data');
+//   }
+// };
 
 export const fetchProductData = async (productId: string, weekDate: string): Promise<ProductOutput> => {
   try {
@@ -45,20 +46,32 @@ export const fetchProductData = async (productId: string, weekDate: string): Pro
     }
 
     console.log('Fetching prediction data for productId:', productId, 'and weekDate:', weekDate);
-    const predictionData = await fetchPredictionData();
-    
-    // Convert prediction data to weekly data format
-    const weeklyData: WeeklyData[] = Object.entries(predictionData)
-      .sort(([a], [b]) => parseInt(a) - parseInt(b))
-      .map(([key, value]) => ({
-        week: `Period ${key}`,
-        value: Number(value.toFixed(2))
-      }));
+    const response = await fetch(`${BASE_URL}/get_prediction_on_userinput`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ id: productId, weekDate })
+    });
+
+    const responseData = await handleApiResponse<{
+      status: 'success' | 'error';
+      error?: string;
+      data?: {
+        id: string;
+        predictions: PredictionResponse;
+      };
+    }>(response);
+
+    if (responseData.status === 'error' || !responseData.data) {
+      throw new Error(responseData.error || 'Failed to fetch prediction data');
+    }
 
     return {
       productId,
       scenarioName: `Scenario ${productId}`,
-      weeklyData,
+      predictionData: responseData.data.predictions
     };
   } catch (error) {
     if (error instanceof Error) {
@@ -90,16 +103,98 @@ export const queryAI = async (query: string): Promise<AIQueryResponse> => {
 
 export const submitProductDetails = async (form: ProductForm): Promise<ProductSubmissionResponse> => {
   try {
-    console.log('Submitting product details with form:', form);
+    // Transform the data to match the FastAPI expected format
+    const transformedData = {
+      id: form.id,
+      isMinimized: form.isMinimized,
+      country: form.country || '',
+      category: form.category || '',
+      basecode: form.baseCode,
+      scenario: form.scenario,
+      weekDate: form.weekDate,
+      packGroup: form.packGroup,
+      productRange: form.productRange,
+      baseNumberInMultipack: form.baseNumberInMultipack,
+      segment: form.segment,
+      superSegment: form.superSegment,
+      salty: form.salty,
+      choco: form.choco,
+      flavor: form.flavor,
+      levelOfSugar: form.levelOfSugar,
+      listPricePerUnitMl: Number(form.listPricePerUnitMl),
+      weightPerUnitMl: Number(form.weightPerUnitMl)
+    };
+
+    console.log('Submitting product details with transformed data:', transformedData);
     const response = await fetch(`${BASE_URL}/get_prediction_on_userinput`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify(form),
+      body: JSON.stringify(transformedData),
     });
-    return handleApiResponse<ProductSubmissionResponse>(response);
+    
+    const responseData = await handleApiResponse<{
+      status: 'success' | 'error';
+      error?: string;
+      data?: {
+        id: string;
+        predictions: PredictionResponse;
+      };
+    }>(response);
+    console.log('Handling response data:', responseData);
+
+    // Validate the response data structure
+    if (responseData.status === 'success' && responseData.data) {
+      console.log('Valid response data found:=============, responseData.data:', responseData.data);
+      const { predictions } = responseData.data;
+      console.log(predictions);
+      
+      // Validate that all required retailers exist in the predictions
+      const hasAllRetailers = (
+        predictions.ASDA &&
+        predictions.MORRISONS &&
+        predictions.SAINSBURYS &&
+        predictions.TESCO &&
+        predictions.TOTAL_MARKET &&
+        typeof predictions.ASDA === 'object' &&
+        typeof predictions.MORRISONS === 'object' &&
+        typeof predictions.SAINSBURYS === 'object' &&
+        typeof predictions.TESCO === 'object' &&
+        typeof predictions.TOTAL_MARKET === 'object'
+      );
+
+      if (!hasAllRetailers) {
+        console.error('Invalid predictions structure:', predictions);
+        return {
+          status: 'error',
+          error: 'Invalid predictions data structure',
+          data: undefined
+        };
+      }
+
+      console.log('Valid prediction data found:', predictions);
+      return {
+        status: 'success',
+        error: undefined,
+        data: {
+          id: responseData.data.id,
+          predictions: responseData.data.predictions,
+          // Return updated form data to propagate to state
+          form: {
+            ...transformedData,
+            predictionData: predictions
+          }
+        }
+      };
+    }
+
+    return {
+      status: responseData.status,
+      error: responseData.error || 'No prediction data available',
+      data: undefined
+    };
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Failed to submit product details: ${error.message}`);
