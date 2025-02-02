@@ -17,9 +17,10 @@ ChartJS.register(
 interface PredictionChartProps {
   data: PredictionResponse | null;
   scenarioName: string;
+  compact?: boolean;
 }
 
-const RETAILER_COLORS = {
+export const RETAILER_COLORS = {
   ASDA: 'rgb(0, 255, 0)',
   MORRISONS: 'rgb(0, 0, 255)',
   SAINSBURYS: 'rgb(255, 128, 0)',
@@ -101,16 +102,18 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
         }
       },
       plugins: {
-        // title: {
-        //   display: true,
-        //   text: `Retailer Predictions - ${scenarioName || 'Unnamed Scenario'}`,
-        //   font: {
-        //     size: 16,
-        //     weight: 'semibold' as const
-        //   }
-        // },
+        title: {
+          display: false,
+          text: `Retailer Predictions - ${scenarioName || 'Unnamed Scenario'}`,
+          font: {
+            size: 16,
+            weight: 'semibold' as const
+          }
+        },
         legend: {
-          position: 'right' as const,
+          display: false,
+          position: 'top' as const,
+          align: 'end' as const,
           orient: 'vertical',
           labels: {
             usePointStyle: true,
@@ -165,7 +168,7 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
         y: {
           type: 'linear' as const,
           title: {
-            display: true,
+            display: false,
             text: 'Value'
           },
           ticks: {
