@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ProductForm, ProductOutput, ClientData } from '../types';
+import { RetailerCard, type RetailerKey } from '../components/RetailerCard';
 import { ProductDetailsModal } from '../components/ProductDetailsModal';
 import { ProductSidebarCard } from '../components/ProductSidebarcard';
 import { PredictionChart } from '../components/PredictionChart';
@@ -127,7 +128,19 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
               <h2 className="text-xl font-semibold mb-4">
                 {selectedForm?.scenario || 'Unnamed Scenario'}
               </h2>
-              <div className="h-[400px] overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {selectedForm?.predictionData && Object.keys(selectedForm.predictionData)
+                  .filter((retailer): retailer is RetailerKey => retailer !== 'TOTAL_MARKET')
+                  .map((retailer) => (
+                    <RetailerCard
+                      key={retailer}
+                      retailer={retailer}
+                      data={selectedForm.predictionData!}
+                    />
+                  ))}
+              </div>
+              <div className="h-[350px] overflow-hidden flex">
+                <div className="w-[60%]">
                 {selectedOutput.predictionData ? (
                   <PredictionChart
                     data={selectedOutput.predictionData}
@@ -139,6 +152,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                   </div>
                 )}
               </div>
+                </div>
               {/* <div className="text-sm text-gray-500 mt-2">
                 <h3 className="font-semibold mb-2">Raw Data:</h3>
                 <pre className="bg-gray-50 p-4 rounded-lg overflow-auto max-h-60">

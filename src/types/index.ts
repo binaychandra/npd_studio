@@ -21,6 +21,8 @@ export interface ProductForm {
   id: string;
   baseCode: string;
   scenario: string;
+  retailer?: string;
+  retailer?: string;
   weekDate: string;
   levelOfSugar: string;
   packGroup: string;
