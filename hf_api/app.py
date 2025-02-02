@@ -4,6 +4,7 @@ import requests
 import json
 import time
 from datetime import datetime
+import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel

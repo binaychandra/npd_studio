@@ -1,3 +1,5 @@
 fastapi
 requests
+numpy
+pandas
 uvicorn[standard]
