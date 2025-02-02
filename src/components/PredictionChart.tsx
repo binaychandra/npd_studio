@@ -2,6 +2,7 @@ import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { PredictionResponse } from '../types';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { AreaChart } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -93,21 +94,34 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
 
     const options = {
       responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          right: 10
+        }
+      },
       plugins: {
-        title: {
-          display: true,
-          text: `Retailer Predictions - ${scenarioName || 'Unnamed Scenario'}`,
-          font: {
-            size: 16,
-            weight: 'bold' as const
-          }
-        },
+        // title: {
+        //   display: true,
+        //   text: `Retailer Predictions - ${scenarioName || 'Unnamed Scenario'}`,
+        //   font: {
+        //     size: 16,
+        //     weight: 'semibold' as const
+        //   }
+        // },
         legend: {
-          position: 'bottom' as const,
+          position: 'right' as const,
+          orient: 'vertical',
           labels: {
-            padding: 20,
-            usePointStyle: true
-          }
+            usePointStyle: true,
+            padding: 16,
+            font: {
+              size: 10
+            }
+          },
+          itemWidth: 10,
+          itemHeight: 10,
+          itemGap: 8
         },
         tooltip: {
           mode: 'index' as const,
@@ -134,12 +148,15 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
           type: 'category' as const,
           title: {
             display: true,
-            text: 'Month'
+            text: ''
           },
           ticks: {
             font: {
               weight: 'bold' as const
-            }
+            },
+            autoSkip: false,
+            maxRotation: 45,
+            minRotation: 45
           },
           grid: {
             display: false
@@ -154,6 +171,12 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
           ticks: {
             font: {
               weight: 'bold' as const
+            },
+            callback: function(value: number) {
+              return new Intl.NumberFormat('en-US', {
+                notation: 'compact',
+                compactDisplay: 'short'
+              }).format(value);
             }
           },
           beginAtZero: true,
@@ -172,7 +195,7 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
     console.log('Chart Data:', chartData);
     console.log('Chart Options:', options);
     return (
-      <div className="h-full w-full border border-gray-200 rounded-lg p-4">
+      <div className="h-full w-full border border-gray-200 rounded-lg p-4 flex-1">
         <Line data={chartData} options={options} />
       </div>
     );

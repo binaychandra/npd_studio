@@ -149,7 +149,6 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
     if (responseData.status === 'success' && responseData.data) {
       console.log('Valid response data found:=============, responseData.data:', responseData.data);
       const { predictions } = responseData.data;
-      console.log(predictions);
       
       // Validate that all required retailers exist in the predictions
       const hasAllRetailers = (
@@ -175,6 +174,25 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
       }
 
       console.log('Valid prediction data found:', predictions);
+
+      // Send the predictions to LLM and get the summary
+      // const summaryResponse = await fetch(`${BASE_URL}/summarize_predictions`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Accept': 'application/json',
+      //   },
+      //   body: JSON.stringify({ predictions }),
+      // });
+
+      // const summaryData = await handleApiResponse<{ summary: string }>(summaryResponse);
+
+      // if (!summaryData.summary) {
+      //   throw new Error('Failed to get summary from LLM');
+      // }
+
+      // console.log('Summary from LLM:', summaryData.summary);
+
       return {
         status: 'success',
         error: undefined,
