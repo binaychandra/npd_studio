@@ -118,17 +118,30 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto flex flex-col">
+      <div className="flex-1 p-6 overflow-y-auto">
         {error ? (
           <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
             {error}
           </div>
         ) : selectedOutput ? (
-          <div className="space-y-6 bg-white p-6 rounded-lg shadow flex-1 min-h-0">
-              <h2 className="text-xl font-semibold mb-4">
+          <div className="space-y-6">
+            {/* Scenario Title */}
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h1 className="text-2xl font-semibold text-gray-800">
                 {selectedForm?.scenario || 'Unnamed Scenario'}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              </h1>
+            </div>
+
+            {/* Retailer Cards Section */}
+            <section className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center mb-6">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Top Retailer Sales
+                </h2>
+                <div className="ml-4 h-px bg-gray-200 flex-1" />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {selectedForm?.predictionData && Object.keys(selectedForm.predictionData)
                   .filter((retailer): retailer is RetailerKey => retailer !== 'TOTAL_MARKET')
                   .map((retailer) => (
@@ -139,8 +152,18 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                     />
                   ))}
               </div>
-              <div className="h-[350px] overflow-hidden flex">
-                <div className="w-[60%]">
+            </section>
+
+            {/* Prediction Chart Section */}
+            <section className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center mb-6">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Total Market Sales
+                </h2>
+                <div className="ml-4 h-px bg-gray-200 flex-1" />
+              </div>
+              
+                <div className="h-[350px] w-[66.6%]">
                 {selectedOutput.predictionData ? (
                   <PredictionChart
                     data={selectedOutput.predictionData}
@@ -152,13 +175,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                   </div>
                 )}
               </div>
-                </div>
-              {/* <div className="text-sm text-gray-500 mt-2">
-                <h3 className="font-semibold mb-2">Raw Data:</h3>
-                <pre className="bg-gray-50 p-4 rounded-lg overflow-auto max-h-60">
-                  {JSON.stringify(selectedOutput.predictionData || {}, null, 2)}
-                </pre>
-              </div> */}
+            </section>
           </div>
         ) : (
           <div className="flex items-center justify-center h-64 text-gray-500">

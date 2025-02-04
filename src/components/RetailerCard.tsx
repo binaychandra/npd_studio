@@ -109,27 +109,49 @@ export const RetailerCard: React.FC<RetailerCardProps> = ({ retailer, data }) =>
   // const metricType = retailer.includes('SPEND') ? 'SPEND' :
   //                    retailer.includes('IMPRESSIONS') ? 'IMPRESSIONS' :
   //                    retailer.includes('VIEWABLE') ? 'VIEWABLE' : 'SALES';
+  //  hover:shadow-xl
+  // transition-all
+  // duration-300
+  // transform
+  // hover:-translate-y-1
 
   return (
-    <div className={`p-4 rounded-xl ${colorVariants[retailer]} flex-1 min-w-[200px]`}>
-      <div className="flex items-center justify-between mb-1">
-        <div className="flex items-center gap-2">
-        <img
-            src={`/assets/icons/${retailer.toLowerCase()}.svg`}
-            alt=""
-            className="w-12 h-12 object-contain"
-            aria-hidden="true"
-          />
-          {/* {MetricIcons[metricType]} */}
-          {/* <span className="text-sm text-gray-500">{retailer}</span> */}
+    <div className={`
+      px-3
+      py-1 
+      rounded-xl 
+      ${colorVariants[retailer]} 
+      flex-1 
+      min-w-[180px]
+      shadow-sm
+      hover:shadow-md
+      transition-all
+      duration-300
+      transform
+      hover:-translate-y-1
+      border
+      border-gray-100/20
+      backdrop-blur-sm
+    `}>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center p-2">
+          <div className="bg-white/10 rounded-lg p-1 backdrop-blur-sm">
+            <img
+              src={`/assets/icons/${retailer.toLowerCase()}.png`}
+              alt=""
+              className="w-12 h-12 object-contain"
+              aria-hidden="true"
+            />
+          </div>
         </div>
-        <span className="text-s text-gray-400">
-          ${total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-        </span>
-      </div>
-      <div className="text-xl font-semibold">
-       
-        {/* {formatValue(total, metricType)} */}
+        <div className="flex flex-col items-end">
+          <span className="text-lg font-bold text-gray-700">
+            ${total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          </span>
+          <span className="text-xs text-gray-500 font-medium">
+            Total Sales
+          </span>
+        </div>
       </div>
     </div>
   );
