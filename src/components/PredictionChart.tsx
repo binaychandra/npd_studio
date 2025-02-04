@@ -1,7 +1,7 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { PredictionResponse } from '../types';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { AreaChart } from 'lucide-react';
 
 ChartJS.register(
@@ -11,7 +11,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 interface PredictionChartProps {
@@ -35,7 +36,6 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
   console.log('PredictionChart received scenarioName:', scenarioName);
 
   // Validate data
-  // Validate data structure and numeric values
   const isValidData = data?.TOTAL_MARKET &&
     Object.values(data).every(retailer =>
       Object.values(retailer).every(val => typeof val === 'number')
@@ -54,7 +54,6 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
   }
 
   try {
-    // Get all months from the data and sort them chronologically
     const months = Object.keys(data.TOTAL_MARKET).sort((a, b) => {
       try {
         const [aMonth, aYear] = a.split('-');
@@ -65,9 +64,9 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
         return monthOrder.indexOf(aMonth.substring(0, 3)) - monthOrder.indexOf(bMonth.substring(0, 3));
       } catch (error) {
         console.error('Error sorting months:', error);
-        return 0; // Fallback to original order
+        return 0;
       }
-      });
+    });
 
     if (months.length === 0) {
       console.error('No months data available');
@@ -81,15 +80,42 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
     const chartData = {
       labels: months,
       datasets: Object.entries(data)
+        .filter(([retailer]) => retailer === 'TOTAL_MARKET')
         .map(([retailer, values]) => ({
           label: retailer,
           data: months.map(month => values[month]),
-          borderColor: RETAILER_COLORS[retailer as keyof typeof RETAILER_COLORS],
-          backgroundColor: RETAILER_COLORS[retailer as keyof typeof RETAILER_COLORS],
-          fill: false,
+          borderColor: 'rgba(255, 120, 36, 0.8)',
+          backgroundColor: (context: any) => {
+            const ctx = context.chart.ctx;
+            const chartArea = context.chart.chartArea;
+            const gradient = ctx.createLinearGradient(
+              0,
+              chartArea.top,
+              0,
+              chartArea.bottom
+            );
+            
+            // Start with a more saturated orange that matches the line
+            gradient.addColorStop(0, 'rgba(255, 120, 36, 0.2)');
+            // Transition through a softer orange
+            gradient.addColorStop(0.2, 'rgba(255, 150, 80, 0.15)');
+            // Add a warm glow in the middle
+            gradient.addColorStop(0.5, 'rgba(255, 180, 120, 0.08)');
+            // Fade to almost transparent
+            gradient.addColorStop(0.8, 'rgba(255, 200, 150, 0.03)');
+            // Complete transparency at the bottom
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            return gradient;
+          },
+          fill: true,
+          borderWidth: 3,
           tension: 0.4,
           pointRadius: 4,
-          pointHoverRadius: 6
+          pointHoverRadius: 6,
+          pointBackgroundColor: 'rgba(255, 120, 36, 1)',
+          pointBorderColor: 'rgba(255, 255, 255, 1)',
+          pointBorderWidth: 2,
         }))
     };
 
@@ -104,10 +130,10 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
       plugins: {
         title: {
           display: false,
-          text: `Retailer Predictions - ${scenarioName || 'Unnamed Scenario'}`,
+          text: `Market Prediction - ${scenarioName || 'Unnamed Scenario'}`,
           font: {
             size: 16,
-            weight: 'semibold' as const
+            weight: 'bold' as const
           }
         },
         legend: {
@@ -157,9 +183,9 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
             font: {
               weight: 'bold' as const
             },
-            autoSkip: false,
-            maxRotation: 45,
-            minRotation: 45
+            autoSkip: true,
+            maxRotation: 0,
+            minRotation: 0
           },
           grid: {
             display: false
@@ -171,20 +197,30 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
             display: false,
             text: 'Value'
           },
+          position: 'left' as const,
           ticks: {
             font: {
               weight: 'bold' as const
             },
-            callback: function(value: number) {
+            callback: function(value: number | string) {
+              const numericValue = typeof value === 'string' ? parseFloat(value) : value;
               return new Intl.NumberFormat('en-US', {
                 notation: 'compact',
                 compactDisplay: 'short'
-              }).format(value);
+              }).format(numericValue);
             }
           },
           beginAtZero: true,
           grid: {
-            color: 'rgba(0, 0, 0, 0.1)'
+            drawTicks: false,
+            display: true,
+            drawBorder: false,
+            color: 'rgba(0, 0, 0, 0.1)',
+            borderDash: [5, 5],
+            drawOnChartArea: true
+          },
+          border: {
+            display: false
           }
         }
       },
