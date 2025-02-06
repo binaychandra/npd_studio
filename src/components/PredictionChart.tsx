@@ -253,9 +253,14 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
     
     return (
       <div className="relative h-full w-full border border-gray-200 rounded-lg p-4 flex-1">
-        <div className="absolute top-4 right-8 bg-gradient-to-r from-orange-50 to-orange-100 p-3 rounded-lg shadow-sm border border-orange-200">
-            <div className="text-xs text-gray-400 mb-1 font-semibold">Total Market Sum: <span className="text-xs font-bold text-orange-600">{formatTotal(calculateTotalMarketSum(data))}</span></div>
-        </div>
+        <div className="absolute top-4 right-9 bg-gradient-to-r from-orange-50 to-orange-100 p-3 rounded-lg shadow-md drop-shadow-md border border-orange-200">
+          <div className="text-xs text-gray-400 mb-1 font-semibold">
+              Total Market Sum: 
+              <span className="text-xs font-bold text-orange-600">
+                  {formatTotal(calculateTotalMarketSum(data))}
+              </span>
+          </div>
+      </div>
         <Line data={chartData} options={options} />
       </div>
     );
