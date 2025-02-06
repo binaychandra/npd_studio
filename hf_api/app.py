@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi import Query
+from transformers import pipeline
 
 from helper import generate_random_predictions
 
@@ -51,6 +52,9 @@ class PredictionInput(BaseModel):
     listPricePerUnitMl: float
     weightPerUnitMl: float
 
+class inputtext(BaseModel):
+    inputtext:str
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
@@ -82,6 +86,22 @@ def get_prediction_from_jobrun():
         print("Failed to initiate pipeline run.")
         print("Status Code:", response.status_code)
         return response.text
+
+classifier = pipeline("sentiment-analysis")  # Defaults to distilbert-base-uncased-finetuned-sst-2-english
+
+@app.post("/get_sentiment")
+def get_sentiment_details(input: inputtext):
+    
+    result = classifier(input)
+    print(result)  # Output will be a list: [{'label': 'POSITIVE', 'score': 0.999...}]
+
+    # Accessing the results:
+    label = result[0]['label']
+    score = result[0]['score']
+    print(f"Sentiment: {label}, Score: {score}")
+    
+    return label, score
+    
 
 @app.post("/get_prediction_on_userinput")
 def run_pred_pipeline(input: PredictionInput):
