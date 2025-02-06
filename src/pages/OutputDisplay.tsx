@@ -4,6 +4,7 @@ import { RetailerCard, type RetailerKey } from '../components/RetailerCard';
 import { ProductDetailsModal } from '../components/ProductDetailsModal';
 import { ProductSidebarCard } from '../components/ProductSidebarcard';
 import { PredictionChart } from '../components/PredictionChart';
+import { RetailerDoughnut } from '../components/DoughnutChart';
 
 interface OutputDisplayProps {
   forms: ProductForm[];
@@ -126,7 +127,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
         ) : selectedOutput ? (
           <div className="space-y-6">
             {/* Scenario Title */}
-            <div className="bg-white p-6 rounded-lg shadow">
+            <div className="bg-white p-2 rounded-xl shadow">
               <h1 className="text-2xl font-semibold text-gray-800">
                 {selectedForm?.scenario || 'Unnamed Scenario'}
               </h1>
@@ -154,7 +155,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
               </div>
             </section>
 
-            {/* Prediction Chart Section */}
+            {/* Chart Section */}
             <section className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center mb-6">
                 <h2 className="text-lg font-semibold text-gray-800">
@@ -163,7 +164,8 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                 <div className="ml-4 h-px bg-gray-200 flex-1" />
               </div>
               
-                <div className="h-[350px] w-[66.6%]">
+                <div className="flex gap-4">
+                <div className="h-[350px] w-[60%]">
                 {selectedOutput.predictionData ? (
                   <PredictionChart
                     data={selectedOutput.predictionData}
@@ -174,6 +176,19 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                     No prediction data available for this product
                   </div>
                 )}
+                  </div>
+                  <div className="h-[350px] w-[35%]">
+                  {selectedOutput.predictionData ? (
+                    <RetailerDoughnut
+                    data={selectedOutput.predictionData}
+                    scenarioName={selectedOutput.scenarioName}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                    No prediction data available for this product
+                    </div>
+                  )}
+                  </div>
               </div>
             </section>
           </div>
