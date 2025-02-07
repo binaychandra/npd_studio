@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from fastapi import Query
 from transformers import pipeline
 
-from helper import generate_random_predictions
+from helper import generate_random_predictions, get_sample_similarity_attr
 
 app = FastAPI()
 
@@ -89,20 +89,22 @@ def get_prediction_from_jobrun():
 
 classifier = pipeline("sentiment-analysis")  # Defaults to distilbert-base-uncased-finetuned-sst-2-english
 
-@app.post("/get_sentiment")
-def get_sentiment_details(input: inputtext):
-    
-    result = classifier(input)
-    print(result)  # Output will be a list: [{'label': 'POSITIVE', 'score': 0.999...}]
+# Define input schema
+class InputText(BaseModel):
+    text: str  # Expect JSON request body with a "text" field
 
-    # Accessing the results:
+@app.post("/get_sentiment")
+def get_sentiment_details(input: InputText):  
+    text = input.text  # Extract the actual string from the Pydantic model
+
+    print(f"===== The type of the text is : {type(text)} =====")  # Debugging output
+
+    result = classifier(text)  # Pass only the extracted string
     label = result[0]['label']
     score = result[0]['score']
-    print(f"Sentiment: {label}, Score: {score}")
-    
-    return label, score
-    
 
+    return {"sentiment": label, "score": score}
+    
 @app.post("/get_prediction_on_userinput")
 def run_pred_pipeline(input: PredictionInput):
 
@@ -112,11 +114,13 @@ def run_pred_pipeline(input: PredictionInput):
     ## Hardcoding for testing purposes ##
 
     temp_predictions_dict = generate_random_predictions()
+    sample_sim_attr = get_sample_similarity_attr()
     data_out = {
         "status" : "success",
         "data" : {
             "id": input.dict()['id'],
-            "predictions": temp_predictions_dict
+            "predictions": temp_predictions_dict,
+            "similarity_attr": sample_sim_attr
         #     "predictions": {
         #         "ASDA": {
         #             "Apr-25": 741.86,
