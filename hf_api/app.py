@@ -120,7 +120,7 @@ def run_pred_pipeline(input: PredictionInput):
         "data" : {
             "id": input.dict()['id'],
             "predictions": temp_predictions_dict,
-            "similarity_attr": sample_sim_attr
+            "similarity": sample_sim_attr
         #     "predictions": {
         #         "ASDA": {
         #             "Apr-25": 741.86,
