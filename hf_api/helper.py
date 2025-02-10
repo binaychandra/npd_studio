@@ -4,6 +4,7 @@ import numpy as np
 def get_sample_similarity_attr():
     sample_sim = {
         "GB1263": {
+            "description": "THIS IS A SAMPLE DESCRIPTION",
             "sell_in_volume": 44426.88,
             "similarity": 66.67,
             "distribution": [
@@ -44,6 +45,7 @@ def get_sample_similarity_attr():
             ]
         },
         "GB1264": {
+            "description": "THIS IS A SAMPLE DESCRIPTION",
             "sell_in_volume": 26840.97,
             "similarity": 66.67,
             "distribution": [
@@ -84,6 +86,7 @@ def get_sample_similarity_attr():
             ]
         },
         "GB1450": {
+            "description": "THIS IS A SAMPLE DESCRIPTION",
             "sell_in_volume": 32346.0,
             "similarity": 66.67,
             "distribution": [
@@ -124,6 +127,7 @@ def get_sample_similarity_attr():
             ]
         },
         "GB1561": {
+            "description": "THIS IS A SAMPLE DESCRIPTION",
             "sell_in_volume": 3265.92,
             "similarity": 77.78,
             "distribution": [
@@ -144,6 +148,7 @@ def get_sample_similarity_attr():
             ]
         },
         "GB1650": {
+            "description": "THIS IS A SAMPLE DESCRIPTION",
             "sell_in_volume": 0.0,
             "similarity": 77.78,
             "distribution": [

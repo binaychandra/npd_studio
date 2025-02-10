@@ -32,12 +32,14 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
     }
     console.log('Selected Form:', selectedForm);
     console.log('Selected Form prediction data:', selectedForm.predictionData);
+    console.log('Selected Form similarity data:', selectedForm.similarityData);
 
     // Always create an output entry, even if there's no prediction data
     const output: ProductOutput = {
       productId: selectedForm.id,
       scenarioName: selectedForm.scenario || `Scenario ${selectedForm.id}`,
-      predictionData: selectedForm.predictionData || null
+      predictionData: selectedForm.predictionData || null,
+      similarityData: selectedForm.similarityData || null,
     };
     setOutputData(prev => {
       const existing = prev.filter(p => p.productId !== productId);
@@ -68,7 +70,8 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
         return {
           productId: form.id,
           scenarioName: form.scenario || `Scenario ${form.id}`,
-          predictionData: form.predictionData || null
+          predictionData: form.predictionData || null,
+          similarityData: form.similarityData || null,
         };
       });
       
@@ -189,6 +192,41 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                     </div>
                   )}
                   </div>
+              </div>
+            </section>
+
+            {/* Similarity Basecodes Section */}
+            <section className="bg-white p-6 rounded-lg shadow">
+              <div className="flex items-center mb-6">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Similarity Basecodes
+                </h2>
+                <div className="ml-4 h-px bg-gray-200 flex-1" />
+              </div>
+              
+              <div className="flex gap-4">
+                <div className="h-[350px] w-[50%]">
+                  {selectedOutput.similarityData ? (
+                    <div className="bg-gray-50 h-full rounded-lg p-4">
+                      {/* First similarity graph component would go here */}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      No similarity data available
+                    </div>
+                  )}
+                </div>
+                <div className="h-[350px] w-[50%]">
+                  {selectedOutput.similarityData ? (
+                    <div className="bg-gray-50 h-full rounded-lg p-4">
+                      {/* Second similarity graph component would go here */}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      No similarity data available
+                    </div>
+                  )}
+                </div>
               </div>
             </section>
           </div>

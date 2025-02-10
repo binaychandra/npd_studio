@@ -22,7 +22,6 @@ export interface ProductForm {
   baseCode: string;
   scenario: string;
   retailer?: string;
-  retailer?: string;
   weekDate: string;
   levelOfSugar: string;
   packGroup: string;
@@ -40,7 +39,9 @@ export interface ProductForm {
   country?: string;
   category?: string;
   predictionData?: PredictionResponse;
+  similarityData?: SimilarityResponse;
 }
+
 
 export interface RetailerData {
   [month: string]: number;
@@ -54,6 +55,16 @@ export interface PredictionResponse {
   TOTAL_MARKET: RetailerData;
 }
 
+// Fix the SimilarityResponse interface syntax
+export interface SimilarityResponse {
+  [key: string]: {
+    sell_in_volume: number;
+    similarity: number;
+    distribution: number[];
+    week_date: string[];
+  };
+}
+
 // export interface WeeklyData {
 //   week: string;
 //   value: number;
@@ -63,6 +74,7 @@ export interface ProductOutput {
   productId: string;
   scenarioName: string;
   predictionData: PredictionResponse | null;
+  similarityData: SimilarityResponse | null;
 }
 
 export interface FormState {
@@ -102,11 +114,17 @@ export interface AIQueryResponse {
   };
 }
 
+// Update ProductSubmissionResponse to properly type similarity_attr
 export interface ProductSubmissionResponse {
   status: 'success' | 'error';
   error?: string;
   data?: {
     id: string;
     predictions: PredictionResponse;
+    similarity: SimilarityResponse; // Make this required, not optional
+    form: ProductForm & {
+      predictionData: PredictionResponse;
+      similarityData: SimilarityResponse;
+    };
   };
 }

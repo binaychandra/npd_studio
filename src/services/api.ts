@@ -5,6 +5,7 @@ import {
   ProductForm,
   ProductSubmissionResponse,
   PredictionResponse,
+  SimilarityResponse,
   RetailerData
 } from '../types';
 
@@ -55,23 +56,18 @@ export const fetchProductData = async (productId: string, weekDate: string): Pro
       body: JSON.stringify({ id: productId, weekDate })
     });
 
-    const responseData = await handleApiResponse<{
-      status: 'success' | 'error';
-      error?: string;
-      data?: {
-        id: string;
-        predictions: PredictionResponse;
-      };
-    }>(response);
+    const responseData = await handleApiResponse<ProductSubmissionResponse>(response);
 
     if (responseData.status === 'error' || !responseData.data) {
       throw new Error(responseData.error || 'Failed to fetch prediction data');
     }
-
+    console.log('======Received product data for similarity:=======', responseData.data.similarity);
     return {
       productId,
       scenarioName: `Scenario ${productId}`,
-      predictionData: responseData.data.predictions
+      predictionData: responseData.data.predictions,
+      similarityData: responseData.data.similarity
+
     };
   } catch (error) {
     if (error instanceof Error) {
@@ -122,7 +118,8 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
       flavor: form.flavor,
       levelOfSugar: form.levelOfSugar,
       listPricePerUnitMl: Number(form.listPricePerUnitMl),
-      weightPerUnitMl: Number(form.weightPerUnitMl)
+      weightPerUnitMl: Number(form.weightPerUnitMl),
+      similarityData: form.similarityData || {}
     };
 
     console.log('Submitting product details with transformed data:', transformedData);
@@ -141,16 +138,16 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
       data?: {
         id: string;
         predictions: PredictionResponse;
+        similarity: SimilarityResponse; // Update type here
       };
     }>(response);
-    console.log('Handling response data:', responseData);
 
-    // Validate the response data structure
+    console.log('Received response similarity---:', responseData.data?.similarity);
+
     if (responseData.status === 'success' && responseData.data) {
-      console.log('Valid response data found:=============, responseData.data:', responseData.data);
-      const { predictions } = responseData.data;
+      const { predictions, similarity } = responseData.data;
       
-      // Validate that all required retailers exist in the predictions
+      // Validate predictions and similarity_attr
       const hasAllRetailers = (
         predictions.ASDA &&
         predictions.MORRISONS &&
@@ -164,44 +161,32 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
         typeof predictions.TOTAL_MARKET === 'object'
       );
 
-      if (!hasAllRetailers) {
-        console.error('Invalid predictions structure:', predictions);
+      const hasSimilarityData = similarity && Object.keys(similarity).length > 0;
+
+      if (!hasAllRetailers || !hasSimilarityData) {
+        console.error('Invalid data structure:', { predictions, similarity });
         return {
           status: 'error',
-          error: 'Invalid predictions data structure',
+          error: 'Invalid data structure',
           data: undefined
         };
+      } else {
+        console.log('NNNNNNNNNN Valid data received:', { 
+          predictions: predictions,
+          similarity: similarity 
+        });
       }
-
-      console.log('Valid prediction data found:', predictions);
-
-      // Send the predictions to LLM and get the summary
-      // const summaryResponse = await fetch(`${BASE_URL}/summarize_predictions`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Accept': 'application/json',
-      //   },
-      //   body: JSON.stringify({ predictions }),
-      // });
-
-      // const summaryData = await handleApiResponse<{ summary: string }>(summaryResponse);
-
-      // if (!summaryData.summary) {
-      //   throw new Error('Failed to get summary from LLM');
-      // }
-
-      // console.log('Summary from LLM:', summaryData.summary);
 
       return {
         status: 'success',
         error: undefined,
         data: {
           id: responseData.data.id,
-          predictions: responseData.data.predictions,
-          // Return updated form data to propagate to state
+          predictions: predictions,
+          similarity: similarity,
           form: {
             ...transformedData,
+            similarityData: similarity,
             predictionData: predictions
           }
         }
@@ -210,7 +195,7 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
 
     return {
       status: responseData.status,
-      error: responseData.error || 'No prediction data available',
+      error: responseData.error || 'No data available',
       data: undefined
     };
   } catch (error) {
