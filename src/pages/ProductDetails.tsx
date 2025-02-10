@@ -201,7 +201,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
                     console.log(`Extracted prediction data for form ${form.id}:`, predictionData);
                     return {
                       ...form,
-                      predictionData
+                      predictionData,
+                      similarityData: response.data.similarity,
                     };
                   }
                   return form;
