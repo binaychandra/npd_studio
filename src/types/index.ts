@@ -58,6 +58,7 @@ export interface PredictionResponse {
 // Fix the SimilarityResponse interface syntax
 export interface SimilarityResponse {
   [key: string]: {
+    description: string;
     sell_in_volume: number;
     similarity: number;
     distribution: number[];
