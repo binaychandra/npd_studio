@@ -5,6 +5,9 @@ import { ProductDetailsModal } from '../components/ProductDetailsModal';
 import { ProductSidebarCard } from '../components/ProductSidebarcard';
 import { PredictionChart } from '../components/PredictionChart';
 import { RetailerDoughnut } from '../components/DoughnutChart';
+import { DashboardTable } from '../components/TabularDetails';
+// import StackedDistributionArea from '../components/StackedArea';
+
 
 interface OutputDisplayProps {
   forms: ProductForm[];
@@ -204,31 +207,57 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                 <div className="ml-4 h-px bg-gray-200 flex-1" />
               </div>
               
-              <div className="flex gap-4">
-                <div className="h-[350px] w-[50%]">
-                  {selectedOutput.similarityData ? (
-                    <div className="bg-gray-50 h-full rounded-lg p-4">
-                      {/* First similarity graph component would go here */}
-                    </div>
+              {/* <div className="flex gap-4"> */}
+              <div className="flex">
+                <div className="h-[475px] w-full">
+                  {selectedOutput?.similarityData ? (
+                    // <div className="bg-gray-50 h-full rounded-lg p-4 overflow-auto">
+                      <DashboardTable
+                        data={selectedOutput.similarityData}
+                        scenarioName={selectedOutput.scenarioName}
+                      />
+                    // </div>
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-500">
                       No similarity data available
                     </div>
                   )}
                 </div>
-                <div className="h-[350px] w-[50%]">
+                {/* <div className="h-[450px] w-[35%]">
                   {selectedOutput.similarityData ? (
                     <div className="bg-gray-50 h-full rounded-lg p-4">
-                      {/* Second similarity graph component would go here */}
+                     
                     </div>
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-500">
                       No similarity data available
                     </div>
                   )}
-                </div>
+                </div> */}
               </div>
+              {/* Stacked Area Chart Section */}
+              {/* <div className="mt-6">
+                <div className="flex items-center mb-4">
+                  <h3 className="text-md font-semibold text-gray-800">Sales Distribution Over Time</h3>
+                  <div className="ml-4 h-px bg-gray-200 flex-1" />
+                </div>
+                <div className="h-[350px] w-full">
+                  {selectedOutput?.similarityData ? (
+                    <StackedDistributionArea
+                      data={selectedOutput.similarityData}
+                      scenarioName={selectedOutput.scenarioName}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      No prediction data available for this visualization
+                    </div>
+                  )}
+                </div>
+              </div> */}
             </section>
+            
+
+
           </div>
         ) : (
           <div className="flex items-center justify-center h-64 text-gray-500">
