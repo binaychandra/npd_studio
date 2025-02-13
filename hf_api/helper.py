@@ -1,5 +1,34 @@
 import pandas as pd
 import numpy as np
+import json
+
+def process_api_response(json_response):
+    # Use json.loads() to parse the JSON string
+    input_data = json.loads(json_response)
+
+    # Extract predictions and similarity attributes
+    predictions = input_data.get("predictions", {})
+    similarity_attr = input_data.get("similarity_attr", {})
+
+    # Convert predictions into a DataFrame and back to a dictionary
+    temp_predictions_df = pd.DataFrame(predictions).T
+    temp_predictions_dict = temp_predictions_df.to_dict()
+
+    # Convert similarity attributes into a DataFrame and back to a dictionary
+    sim_attr_df = pd.DataFrame(similarity_attr).T
+    sample_sim_attr = sim_attr_df.to_dict()
+
+    # Construct final output dictionary
+    data_out = {
+        "status": "success",
+        "data": {
+            "id": input_data.get("id", "default_id"),  # Assuming an 'id' key exists in the input
+            "predictions": temp_predictions_dict,
+            "similarity": sample_sim_attr
+        }
+    }
+
+    return data_out
 
 def get_sample_similarity_attr():
     sample_sim = {
