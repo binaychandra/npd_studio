@@ -4,7 +4,8 @@ import json
 
 def process_api_response(json_response):
     # Use json.loads() to parse the JSON string
-    input_data = json.loads(json_response)
+    print("Type of json_response : ", type(json_response))
+    input_data = json_response
 
     # Extract predictions and similarity attributes
     predictions = input_data.get("predictions", {})
@@ -19,16 +20,18 @@ def process_api_response(json_response):
     sample_sim_attr = sim_attr_df.to_dict()
 
     # Construct final output dictionary
-    data_out = {
-        "status": "success",
-        "data": {
-            "id": input_data.get("id", "default_id"),  # Assuming an 'id' key exists in the input
-            "predictions": temp_predictions_dict,
-            "similarity": sample_sim_attr
-        }
-    }
+    return temp_predictions_dict, sample_sim_attr   
 
-    return data_out
+    # data_out = {
+    #     "status": "success",
+    #     "data": {
+    #         "id": input_data.get("id", "default_id"),  # Assuming an 'id' key exists in the input
+    #         "predictions": temp_predictions_dict,
+    #         "similarity": sample_sim_attr
+    #     }
+    # }
+
+    # return data_out
 
 def get_sample_similarity_attr():
     sample_sim = {
