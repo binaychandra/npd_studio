@@ -50,29 +50,6 @@ interface RetailerCardProps {
   data: PredictionResponse;
 }
 
-// const MetricIcons = {
-//   SPEND: (
-//     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-blue-500">
-//       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-//     </svg>
-//   ),
-//   IMPRESSIONS: (
-//     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-purple-500">
-//       <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-//     </svg>
-//   ),
-//   VIEWABLE: (
-//     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-green-500">
-//       <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-//     </svg>
-//   ),
-//   SALES: (
-//     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-pink-500">
-//       <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
-//     </svg>
-//   )
-// };
-
 const colorVariants = {
   ASDA: 'bg-blue-50',
   MORRISONS: 'bg-purple-50',
@@ -86,21 +63,6 @@ const formatValue = (value: number, type: string) => {
   }
   return value.toLocaleString();
 };
-
-// const getMetricLabel = (type: string) => {
-//   switch (type) {
-//     case 'SPEND':
-//       return 'Retailer Share';
-//     case 'IMPRESSIONS':
-//       return 'Total Impressions';
-//     case 'VIEWABLE':
-//       return 'Viewable Impressions';
-//     case 'SALES':
-//       return 'Total Sales';
-//     default:
-//       return type;
-//   }
-// };
 
 export const RetailerCard: React.FC<RetailerCardProps> = ({ retailer, data }) => {
   const total = Object.values(data[retailer]).reduce((sum: number, val) =>
@@ -145,9 +107,10 @@ export const RetailerCard: React.FC<RetailerCardProps> = ({ retailer, data }) =>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-lg font-bold text-gray-700">
-            ${total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-          </span>
+            <span className="text-lg font-bold text-gray-700">
+            {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            <span className="text-sm bg-yellow-100 ml-1 px-1 rounded-md">kg</span>
+            </span>
           <span className="text-xs text-gray-500 font-medium">
             Total Sales
           </span>

@@ -46,13 +46,13 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
   // Format large numbers
   const formatTotal = (value: number) => {
     if (value >= 1e9) {
-      return `${(value / 1e9).toFixed(2)}B`;
+      return `${(value / 1e9).toFixed(1)}B`;
     } else if (value >= 1e6) {
-      return `${(value / 1e6).toFixed(2)}M`;
+      return `${(value / 1e6).toFixed(1)}M`;
     } else if (value >= 1e3) {
-      return `${(value / 1e3).toFixed(2)}K`;
+      return `${(value / 1e3).toFixed(1)}K`;
     }
-    return value.toFixed(2);
+    return value.toFixed(1);
   };
 
   // Validate data
@@ -254,12 +254,15 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
     return (
       <div className="relative h-full w-full border border-gray-200 rounded-lg p-4 flex-1">
         <div className="absolute top-4 right-9 bg-gradient-to-r from-orange-50 to-orange-100 p-3 rounded-lg shadow-md drop-shadow-md border border-orange-200">
-          <div className="text-xs text-gray-400 mb-1 font-semibold">
-              Total Market Sum: 
+            <div className="text-xs text-gray-400 mb-1 font-semibold">
+              Total Market Sum :
+              <span> </span>
               <span className="text-xs font-bold text-orange-600">
-                  {formatTotal(calculateTotalMarketSum(data))}
+                {formatTotal(calculateTotalMarketSum(data)) }
               </span>
-          </div>
+              <span className="text-sm text-orange-500 ml-1 px-1 rounded-md bg-yellow-100">kg</span>
+
+            </div>
       </div>
         <Line data={chartData} options={options} />
       </div>
