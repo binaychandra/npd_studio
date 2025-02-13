@@ -170,7 +170,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                 <div className="ml-4 h-px bg-gray-200 flex-1" />
               </div>
               
-                <div className="flex gap-4">
+                <div className="flex gap-4 w-full">
                 <div className="h-[350px] w-[60%]">
                 {selectedOutput.predictionData ? (
                   <PredictionChart
@@ -183,7 +183,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                   </div>
                 )}
                   </div>
-                  <div className="h-[350px] w-[35%]">
+                  <div className="h-[350px] w-[40%]">
                   {selectedOutput.predictionData ? (
                     <RetailerDoughnut
                     data={selectedOutput.predictionData}
@@ -199,7 +199,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             </section>
 
             {/* Similarity Basecodes Section */}
-            <section className="bg-white p-6 rounded-lg shadow">
+            <section className="bg-white p-6 rounded-lg">
               <div className="flex items-center mb-6">
                 <h2 className="text-lg font-semibold text-gray-800">
                   Similarity Basecodes
@@ -209,7 +209,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
               
               {/* <div className="flex gap-4"> */}
               <div className="flex">
-                <div className="h-[475px] w-full">
+                <div className="h-[525px] w-full">
                   {selectedOutput?.similarityData ? (
                     // <div className="bg-gray-50 h-full rounded-lg p-4 overflow-auto">
                       <DashboardTable
