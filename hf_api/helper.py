@@ -12,11 +12,11 @@ def process_api_response(json_response):
     similarity_attr = input_data.get("similarity_attr", {})
 
     # Convert predictions into a DataFrame and back to a dictionary
-    temp_predictions_df = pd.DataFrame(predictions).T
+    temp_predictions_df = pd.DataFrame(predictions)
     temp_predictions_dict = temp_predictions_df.to_dict()
 
     # Convert similarity attributes into a DataFrame and back to a dictionary
-    sim_attr_df = pd.DataFrame(similarity_attr).T
+    sim_attr_df = pd.DataFrame(similarity_attr)
     sample_sim_attr = sim_attr_df.to_dict()
 
     # Construct final output dictionary
