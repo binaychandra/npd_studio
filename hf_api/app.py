@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from fastapi import Query
 from transformers import pipeline
 
-from helper import generate_random_predictions, get_sample_similarity_attr
+from helper import generate_random_predictions, get_sample_similarity_attr, process_api_response
 
 app = FastAPI()
 
@@ -113,95 +113,18 @@ def run_pred_pipeline(input: PredictionInput):
 
     ## Hardcoding for testing purposes ##
 
-    temp_predictions_dict = generate_random_predictions()
-    sample_sim_attr = get_sample_similarity_attr()
-    data_out = {
-        "status" : "success",
-        "data" : {
-            "id": input.dict()['id'],
-            "predictions": temp_predictions_dict,
-            "similarity": sample_sim_attr
-        #     "predictions": {
-        #         "ASDA": {
-        #             "Apr-25": 741.86,
-        #             "May-25": 2624.14,
-        #             "Jun-25": 808.83,
-        #             "Jul-25": 923.99,
-        #             "Aug-25": 280.57,
-        #             "Sep-25": 13.72,
-        #             "Oct-25": 20.58,
-        #             "Nov-25": 23.9,
-        #             "Dec-25": 1619.17,
-        #             "Jan-26": 1123.3,
-        #             "Feb-26": 235.05,
-        #             "Mar-26": 162.03,
-        #             "Apr-26": 410.15
-        #         },
-        #         "MORRISONS": {
-        #             "Apr-25": 2331.82,
-        #             "May-25": 12573.63,
-        #             "Jun-25": 8536.11,
-        #             "Jul-25": 11987.12,
-        #             "Aug-25": 7898.69,
-        #             "Sep-25": 6396.44,
-        #             "Oct-25": 6263.68,
-        #             "Nov-25": 4706.39,
-        #             "Dec-25": 4583.83,
-        #             "Jan-26": 5898.89,
-        #             "Feb-26": 4337.92,
-        #             "Mar-26": 6339.77,
-        #             "Apr-26": 5191.83
-        #         },
-        #         "SAINSBURYS": {
-        #             "Apr-25": 392.79,
-        #             "May-25": 4353.46,
-        #             "Jun-25": 2627.94,
-        #             "Jul-25": 3361.95,
-        #             "Aug-25": 5763.03,
-        #             "Sep-25": 2985.44,
-        #             "Oct-25": 3457.49,
-        #             "Nov-25": 2631.01,
-        #             "Dec-25": 2645.14,
-        #             "Jan-26": 3034.98,
-        #             "Feb-26": 2958.94,
-        #             "Mar-26": 4043.73,
-        #             "Apr-26": 3364.26
-        #         },
-        #         "TESCO": {
-        #             "Apr-25": 2302.79,
-        #             "May-25": 18921.9,
-        #             "Jun-25": 17958.08,
-        #             "Jul-25": 18710.57,
-        #             "Aug-25": 13609.1,
-        #             "Sep-25": 18693.05,
-        #             "Oct-25": 21091.39,
-        #             "Nov-25": 18796.81,
-        #             "Dec-25": 21114.51,
-        #             "Jan-26": 20039.52,
-        #             "Feb-26": 21608.5,
-        #             "Mar-26": 22534.27,
-        #             "Apr-26": 16405.85
-        #         },
-        #         "TOTAL_MARKET": {
-        #             "Apr-25": 10964.68,
-        #             "May-25": 77262.14,
-        #             "Jun-25": 62432.31,
-        #             "Jul-25": 76078.74,
-        #             "Aug-25": 52031.48,
-        #             "Sep-25": 47737.41,
-        #             "Oct-25": 51094.34,
-        #             "Nov-25": 42181.84,
-        #             "Dec-25": 47680.7,
-        #             "Jan-26": 50010.67,
-        #             "Feb-26": 46154.89,
-        #             "Mar-26": 49339.0,
-        #             "Apr-26": 39747.65
-        #         }
-        #     }
-        }
-    }
+    # temp_predictions_dict = generate_random_predictions()
+    # sample_sim_attr = get_sample_similarity_attr()
+    # data_out = {
+    #     "status" : "success",
+    #     "data" : {
+    #         "id": input.dict()['id'],
+    #         "predictions": temp_predictions_dict,
+    #         "similarity": sample_sim_attr
+    #     }
+    # }
 
-    return data_out
+    # return data_out
 
     print(f"Here is the input dict : {input.dict()}")
     print(f"Running the pipeline : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
@@ -257,10 +180,11 @@ def run_pred_pipeline(input: PredictionInput):
             payload = dict(run_id=task_run_id)
             response = requests.get(api_url, headers=headers, data=json.dumps(payload))
             output_json = json.loads(response.json()['notebook_output']['result'])
+            output_dict = process_api_response(output_json)
             #nb_output = output_json['prediction']
             break;
-
-    return output_json
+        print()
+    return output_dict
 
 
 @app.get("/get_prediction_from_databricks")
