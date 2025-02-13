@@ -180,11 +180,19 @@ def run_pred_pipeline(input: PredictionInput):
             payload = dict(run_id=task_run_id)
             response = requests.get(api_url, headers=headers, data=json.dumps(payload))
             output_json = json.loads(response.json()['notebook_output']['result'])
-            output_dict = process_api_response(output_json)
+            temp_predictions_dict, sample_sim_attr = process_api_response(output_json)
+            data_out = {
+                        "status" : "success",
+                        "data" : {
+                            "id": input.dict()['id'],
+                            "predictions": temp_predictions_dict,
+                            "similarity": sample_sim_attr
+                        }
+                    }
             #nb_output = output_json['prediction']
             break;
-        print()
-    return output_dict
+        
+    return data_out
 
 
 @app.get("/get_prediction_from_databricks")
