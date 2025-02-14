@@ -4,6 +4,7 @@ import requests
 import json
 import time
 from datetime import datetime
+import time
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -51,6 +52,7 @@ class PredictionInput(BaseModel):
     levelOfSugar: str
     listPricePerUnitMl: float
     weightPerUnitMl: float
+    sampleOutput: bool
 
 class inputtext(BaseModel):
     inputtext:str
@@ -112,7 +114,8 @@ def run_pred_pipeline(input: PredictionInput):
     print(f"Running the pipeline : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
 
     ## Hardcoding for testing purposes ##
-    if input.dict().get('sampleOutput') == 'true':
+    if input.dict().get('sampleOutput') == True:
+        time.sleep(4)
         temp_predictions_dict = generate_random_predictions()
         sample_sim_attr = get_sample_similarity_attr()
         data_out = {
