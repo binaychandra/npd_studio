@@ -119,7 +119,8 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
       levelOfSugar: form.levelOfSugar,
       listPricePerUnitMl: Number(form.listPricePerUnitMl),
       weightPerUnitMl: Number(form.weightPerUnitMl),
-      similarityData: form.similarityData || {}
+      similarityData: form.similarityData || {},
+      sampleOutput: true
     };
 
     console.log('Submitting product details with transformed data:', transformedData);

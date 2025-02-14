@@ -112,87 +112,65 @@ def run_pred_pipeline(input: PredictionInput):
     print(f"Running the pipeline : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
 
     ## Hardcoding for testing purposes ##
-
-    # temp_predictions_dict = generate_random_predictions()
-    # sample_sim_attr = get_sample_similarity_attr()
-    # data_out = {
-    #     "status" : "success",
-    #     "data" : {
-    #         "id": input.dict()['id'],
-    #         "predictions": temp_predictions_dict,
-    #         "similarity": sample_sim_attr
-    #     }
-    # }
-
-    # return data_out
-
-    print(f"Here is the input dict : {input.dict()}")
-    print(f"Running the pipeline : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ")
+    if input.dict().get('sampleOutput') == 'true':
+        temp_predictions_dict = generate_random_predictions()
+        sample_sim_attr = get_sample_similarity_attr()
+        data_out = {
+            "status" : "success",
+            "data" : {
+                "id": input.dict()['id'],
+                "predictions": temp_predictions_dict,
+                "similarity": sample_sim_attr
+            }
+        }
+        return data_out
     
-    headers = {
-        "Authorization": f"Bearer {API_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    # Pipeline details
-    pipeline_id = "403360183892362"
-    json_data = None 
-    payload = {
-        'job_id': pipeline_id,
-        'notebook_params': input.dict()
-        # 'notebook_params': {
-        #     "salesorg_cd": "GB01",
-        #     "category_mdlz": "EUCO",
-        #     "basecode": "GB10002",
-        #     "scenario": "sc_1",
-        #     "week_date": "2025-04-28",
-        #     "level_of_sugar": "STANDARD",
-        #     "pack_group": "CHOC ADULT SGLS",
-        #     "product_range": "MILKA",
-        #     "segment": "CHOC SGLS",
-        #     "supersegment": "STANDARD CHOCOLATE",
-        #     "base_number_in_multipack": "SINGLE",
-        #     "flavour": "CITRUS",
-        #     "choco": "MILK",
-        #     "salty": "NO",
-        #     "weight_per_unit_mdlz": "0.28",
-        #     "list_price_per_unit_mdlz": "1.75"
-        #     }
-    }
+    else:
+    
+        headers = {
+            "Authorization": f"Bearer {API_TOKEN}",
+            "Content-Type": "application/json"
+        }
+        # Pipeline details
+        pipeline_id = "403360183892362"
+        payload = {
+            'job_id': pipeline_id,
+            'notebook_params': input.dict()
+        }
 
-    # Trigger the run
-    api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/run-now"
-    response = requests.post(api_url, headers=headers, data=json.dumps(payload))
-    response_json = response.json()
-    print(f"\nPrediction pipeline started with details : {response_json}\n")
-    run_id = response_json["run_id"]
-    #pred_out = pd.DataFrame()
-    while True:
-        time.sleep(2)
-        api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/runs/get?run_id={run_id}"
-        response = requests.get(api_url, headers=headers)
+        # Trigger the run
+        api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/run-now"
+        response = requests.post(api_url, headers=headers, data=json.dumps(payload))
         response_json = response.json()
-        task_run_id = response_json['tasks'][0]['run_id']
-        run_status = response_json["state"]["life_cycle_state"]
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Status : {run_status}")
-        job_status = response_json["state"].get('result_state')
-        if job_status == 'SUCCESS':
-            api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/runs/get-output"
-            payload = dict(run_id=task_run_id)
-            response = requests.get(api_url, headers=headers, data=json.dumps(payload))
-            output_json = json.loads(response.json()['notebook_output']['result'])
-            temp_predictions_dict, sample_sim_attr = process_api_response(output_json)
-            data_out = {
-                        "status" : "success",
-                        "data" : {
-                            "id": input.dict()['id'],
-                            "predictions": temp_predictions_dict,
-                            "similarity": sample_sim_attr
+        print(f"\nPrediction pipeline started with details : {response_json}\n")
+        run_id = response_json["run_id"]
+        #pred_out = pd.DataFrame()
+        while True:
+            time.sleep(2)
+            api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/runs/get?run_id={run_id}"
+            response = requests.get(api_url, headers=headers)
+            response_json = response.json()
+            task_run_id = response_json['tasks'][0]['run_id']
+            run_status = response_json["state"]["life_cycle_state"]
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Status : {run_status}")
+            job_status = response_json["state"].get('result_state')
+            if job_status == 'SUCCESS':
+                api_url = f"{DATABRICKS_INSTANCE}/api/2.1/jobs/runs/get-output"
+                payload = dict(run_id=task_run_id)
+                response = requests.get(api_url, headers=headers, data=json.dumps(payload))
+                output_json = json.loads(response.json()['notebook_output']['result'])
+                temp_predictions_dict, sample_sim_attr = process_api_response(output_json)
+                data_out = {
+                            "status" : "success",
+                            "data" : {
+                                "id": input.dict()['id'],
+                                "predictions": temp_predictions_dict,
+                                "similarity": sample_sim_attr
+                            }
                         }
-                    }
-            #nb_output = output_json['prediction']
-            break;
-        
-    return data_out
+                break;
+            
+        return data_out
 
 
 @app.get("/get_prediction_from_databricks")
