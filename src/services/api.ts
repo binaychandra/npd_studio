@@ -1,12 +1,10 @@
 import {
   ProductOutput,
-  PredictionData,
   AIQueryResponse,
   ProductForm,
   ProductSubmissionResponse,
   PredictionResponse,
-  SimilarityResponse,
-  RetailerData
+  SimilarityResponse
 } from '../types';
 
 const BASE_URL = 'https://binaychandra-npdstudio-predapi.hf.space'

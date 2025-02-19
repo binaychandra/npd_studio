@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import { PredictionResponse } from '../types';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { AreaChart } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -21,24 +19,21 @@ interface PredictionChartProps {
   compact?: boolean;
 }
 
-export const RETAILER_COLORS = {
-  ASDA: 'rgb(0, 255, 0)',
-  MORRISONS: 'rgb(0, 0, 255)',
-  SAINSBURYS: 'rgb(255, 128, 0)',
-  TESCO: 'rgb(255, 0, 0)',
-  TOTAL_MARKET: 'rgb(128, 128, 128)'
-};
-
 const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenarioName }) => {
-  console.log('PredictionChart received data:', data);
-  console.log('PredictionChart received scenarioName:', scenarioName);
+  const [selectedColumn, setSelectedColumn] = useState('TOTAL_MARKET');
 
-  // Calculate total market sum
-  const calculateTotalMarketSum = (data: PredictionResponse | null) => {
-    if (!data?.TOTAL_MARKET) return 0;
-    return Object.values(data.TOTAL_MARKET).reduce((sum, val) => 
+  // Get all available columns (retailers) from data
+  const getAvailableColumns = () => {
+    if (!data) return [];
+    return Object.keys(data);
+  };
+
+  // Calculate total sum based on selected column
+  const calculateTotalSum = (data: PredictionResponse | null, column: string) => {
+    if (!data?.[column]) return 0;
+    return Object.values(data[column]).reduce((sum, val) => 
       sum + (typeof val === 'number' ? val : 0), 0
     );
   };
@@ -56,13 +51,12 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
   };
 
   // Validate data
-  const isValidData = data?.TOTAL_MARKET &&
+  const isValidData = data?.[selectedColumn] &&
     Object.values(data).every(retailer =>
       Object.values(retailer).every(val => typeof val === 'number')
     );
 
   if (!isValidData) {
-    console.error('Invalid prediction data structure:', data);
     return (
       <div className="flex items-center justify-center h-full text-red-500">
         Invalid data format. Please check API response.
@@ -74,7 +68,7 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
   }
 
   try {
-    const months = Object.keys(data.TOTAL_MARKET).sort((a, b) => {
+    const months = Object.keys(data[selectedColumn]).sort((a, b) => {
       try {
         const [aMonth, aYear] = a.split('-');
         const [bMonth, bYear] = b.split('-');
@@ -89,7 +83,6 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
     });
 
     if (months.length === 0) {
-      console.error('No months data available');
       return (
         <div className="flex items-center justify-center h-full text-red-500">
           No timeline data available
@@ -99,39 +92,37 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
 
     const chartData = {
       labels: months,
-      datasets: Object.entries(data)
-        .filter(([retailer]) => retailer === 'TOTAL_MARKET')
-        .map(([retailer, values]) => ({
-          label: retailer,
-          data: months.map(month => values[month]),
-          borderColor: 'rgba(255, 120, 36, 0.8)',
-          backgroundColor: (context: any) => {
-            const ctx = context.chart.ctx;
-            const chartArea = context.chart.chartArea;
-            const gradient = ctx.createLinearGradient(
-              0,
-              chartArea.top,
-              0,
-              chartArea.bottom
-            );
-            
-            gradient.addColorStop(0, 'rgba(255, 120, 36, 0.2)');
-            gradient.addColorStop(0.2, 'rgba(255, 150, 80, 0.15)');
-            gradient.addColorStop(0.5, 'rgba(255, 180, 120, 0.08)');
-            gradient.addColorStop(0.8, 'rgba(255, 200, 150, 0.03)');
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            
-            return gradient;
-          },
-          fill: true,
-          borderWidth: 3,
-          tension: 0.4,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          pointBackgroundColor: 'rgba(255, 120, 36, 1)',
-          pointBorderColor: 'rgba(255, 255, 255, 1)',
-          pointBorderWidth: 2,
-        }))
+      datasets: [{
+        label: selectedColumn,
+        data: months.map(month => data[selectedColumn][month]),
+        borderColor: 'rgba(255, 120, 36, 0.8)',
+        backgroundColor: (context: any) => {
+          const ctx = context.chart.ctx;
+          const chartArea = context.chart.chartArea;
+          const gradient = ctx.createLinearGradient(
+            0,
+            chartArea.top,
+            0,
+            chartArea.bottom
+          );
+          
+          gradient.addColorStop(0, 'rgba(255, 120, 36, 0.2)');
+          gradient.addColorStop(0.2, 'rgba(255, 150, 80, 0.15)');
+          gradient.addColorStop(0.5, 'rgba(255, 180, 120, 0.08)');
+          gradient.addColorStop(0.8, 'rgba(255, 200, 150, 0.03)');
+          gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          
+          return gradient;
+        },
+        fill: true,
+        borderWidth: 3,
+        tension: 0.4,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: 'rgba(255, 120, 36, 1)',
+        pointBorderColor: 'rgba(255, 255, 255, 1)',
+        pointBorderWidth: 2,
+      }]
     };
 
     const options = {
@@ -225,9 +216,9 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
               }).format(numericValue);
             }
           },
-        beginAtZero: false,
-        suggestedMin: 5000,
-        suggestedMax: Math.ceil(Math.max(...Object.values(data.TOTAL_MARKET)) / 5000) * 5000 + 5000,
+          beginAtZero: false,
+          suggestedMin: 5000,
+          suggestedMax: Math.ceil(Math.max(...Object.values(data[selectedColumn])) / 5000) * 5000 + 5000,
           grid: {
             drawTicks: false,
             display: true,
@@ -247,23 +238,33 @@ export const PredictionChart: React.FC<PredictionChartProps> = ({ data, scenario
         intersect: false
       }
     };
-
-    console.log('Chart Data:', chartData);
-    console.log('Chart Options:', options);
     
     return (
       <div className="relative h-full w-full border border-gray-200 rounded-lg p-4 flex-1">
-        <div className="absolute top-4 right-9 bg-gradient-to-r from-orange-50 to-orange-100 p-3 rounded-lg shadow-md drop-shadow-md border border-orange-200">
-            <div className="text-xs text-gray-400 mb-1 font-semibold">
-              Total Market Sum :
-              <span> </span>
-              <span className="text-xs font-bold text-orange-600">
-                {formatTotal(calculateTotalMarketSum(data)) }
-              </span>
-              <span className="text-sm text-orange-500 ml-1 px-1 rounded-md bg-yellow-100">kg</span>
-
-            </div>
+        {/* Column Selector Dropdown */}
+        <div className="absolute top-4 right-9 bg-gradient-to-r font-bold from-orange-50 to-orange-100 p-3 rounded-lg shadow-md drop-shadow-md border border-orange-200">
+        <div className="flex items-center gap-2">
+            <select
+            value={selectedColumn}
+            onChange={(e) => setSelectedColumn(e.target.value)}
+            className="bg-transparent border border-gray-300 text-gray-500 text-xs font-bold rounded focus:ring-orange-500 focus:border-orange-500 py-0 px-2 h-6 max-w-[140px] font-semibold"
+            >
+            {getAvailableColumns().map(column => (
+              <option key={column} value={column} className="text-gray-500 font-semibold">
+              {column}
+              </option>
+            ))}
+            </select>
+          <div className="text-xs text-gray-400 font-semibold whitespace-nowrap">
+            Sum:
+            <span className="ml-1 font-bold text-orange-600">
+              {formatTotal(calculateTotalSum(data, selectedColumn))}
+            </span>
+            <span className="text-xs text-orange-500 ml-1 px-1 rounded bg-yellow-50">kg</span>
+          </div>
+        </div>
       </div>
+
         <Line data={chartData} options={options} />
       </div>
     );
