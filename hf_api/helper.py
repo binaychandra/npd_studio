@@ -22,17 +22,6 @@ def process_api_response(json_response):
     # Construct final output dictionary
     return temp_predictions_dict, sample_sim_attr   
 
-    # data_out = {
-    #     "status": "success",
-    #     "data": {
-    #         "id": input_data.get("id", "default_id"),  # Assuming an 'id' key exists in the input
-    #         "predictions": temp_predictions_dict,
-    #         "similarity": sample_sim_attr
-    #     }
-    # }
-
-    # return data_out
-
 def get_sample_similarity_attr():
     sample_sim = {
         "GB1263": {
