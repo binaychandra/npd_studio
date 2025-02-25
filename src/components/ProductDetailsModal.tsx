@@ -54,17 +54,17 @@ export const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto scrollbar-thin m-4">
-        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Product Details</h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <div className="p-6 space-y-6">
+      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] flex flex-col m-4">
+      <div className="border-b p-4 flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Product Details</h2>
+        <button
+        onClick={onClose}
+        className="p-1 hover:bg-gray-100 rounded-full"
+        >
+        <X size={20} />
+        </button>
+      </div>
+      <div className="p-6 space-y-6 overflow-y-auto scrollbar-thin">
           {formGroups.map((group) => (
             <div key={group.title} className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-medium mb-3">{group.title}</h3>

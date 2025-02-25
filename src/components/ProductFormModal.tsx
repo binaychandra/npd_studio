@@ -149,51 +149,61 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         </div>
 
         <div className="p-6 overflow-y-auto flex-grow scrollbar-thin">
-          <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-8 px-2">
             <div className="flex items-center gap-4">
+              {!showAiQuery ? (
               <button
-                onClick={() => setShowAiQuery(!showAiQuery)}
-                className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 text-sm"
+                onClick={() => setShowAiQuery(true)}
+                className="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2 text-sm font-medium group"
               >
-                Ask AI
-              </button>
-              {showAiQuery && (
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    value={aiQuery}
-                    onChange={(e) => setAiQuery(e.target.value)}
-                    placeholder="Ask about this product..."
-                    className="w-[300px] px-3 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    onKeyPress={(e) => e.key === 'Enter' && handleAiQuery()}
-                  />
-                  <button
-                    onClick={handleAiQuery}
-                    disabled={isLoading}
-                    className="p-1 text-blue-500 hover:bg-blue-50 rounded-md transition-colors disabled:text-gray-400"
-                  >
-                    {isLoading ? '...' : <Send size={16} />}
-                  </button>
+                <span className="opacity-90">AI Assistant</span>
+                <div className="w-4 h-4 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <Send size={12} className="text-blue-600" />
                 </div>
+              </button>
+              ) : (
+              <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-200 w-[440px] transition-all">
+                <input
+                type="text"
+                value={aiQuery}
+                onChange={(e) => setAiQuery(e.target.value)}
+                placeholder="How can I help you with this product?"
+                className="flex-1 px-4 py-2.5 rounded-l-lg focus:outline-none text-sm text-gray-600"
+                onKeyPress={(e) => e.key === 'Enter' && handleAiQuery()}
+                />
+                <div className="border-l border-gray-200">
+                <button
+                  onClick={handleAiQuery}
+                  disabled={isLoading}
+                  className="px-4 py-2.5 text-blue-600 hover:bg-gray-50 rounded-r-lg transition-all disabled:text-gray-300 h-full"
+                >
+                  {isLoading ? 
+                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"/> : 
+                  <Send size={16} className="transform hover:translate-x-1 transition-transform"/>
+                  }
+                </button>
+                </div>
+              </div>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className={`text-sm ${!isDetailedModel ? 'text-blue-600' : 'text-gray-500'}`}>
-                General
+            <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-xl">
+              <span className="text-gray-500 text-sm font-medium">Model Type:</span>
+              <span className={`text-sm ${!isDetailedModel ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
+              General
               </span>
               <Switch.Root
-                className="w-[42px] h-[25px] bg-gray-200 rounded-full relative data-[state=checked]:bg-blue-600 outline-none cursor-pointer"
-                checked={isDetailedModel}
-                onCheckedChange={handleDetailedModelToggle}
+              className="w-[44px] h-[26px] bg-gray-200 rounded-full relative data-[state=checked]:bg-blue-500 outline-none cursor-pointer transition-colors duration-200"
+              checked={isDetailedModel}
+              onCheckedChange={handleDetailedModelToggle}
               >
-                <Switch.Thumb className="block w-[21px] h-[21px] bg-white rounded-full transition-transform duration-100 translate-x-0.5 will-change-transform data-[state=checked]:translate-x-[19px]" />
+              <Switch.Thumb className="block w-[22px] h-[22px] bg-white rounded-full shadow-sm transition-transform duration-200 translate-x-0.5 will-change-transform data-[state=checked]:translate-x-[20px]" />
               </Switch.Root>
-              <span className={`text-sm ${isDetailedModel ? 'text-blue-600' : 'text-gray-500'}`}>
-                Detailed
+              <span className={`text-sm ${isDetailedModel ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
+              Detailed
               </span>
             </div>
-          </div>
+            </div>
 
           <div className="space-y-6">
             <FormGroup title="Basic Information">

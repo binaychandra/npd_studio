@@ -76,24 +76,23 @@ export const DashboardTable: React.FC<DashboardTableProps> = ({ data, scenarioNa
 
   return (
     <div className="w-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      {/* <h2 className="text-xl font-semibold text-gray-800 mb-6">Product Distribution Analysis</h2> */}
       <div className="overflow-x-auto">
         <table className="min-w-full">
-          <thead>
-            <tr>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+          <thead className="bg-gray-50">
+            <tr className="border-b border-gray-200">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider bg-gradient-to-r from-gray-50 to-gray-100">
                 Base Code
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider bg-gradient-to-r from-gray-50 to-gray-100">
                 Description
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider bg-gradient-to-r from-gray-50 to-gray-100">
                 Similarity
               </th>
-              <th className="px-6 py-3 text-right text-sm font-medium text-gray-500 tracking-wider">
+              <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700 tracking-wider bg-gradient-to-r from-gray-50 to-gray-100">
                 Sell in Volume
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 tracking-wider">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 tracking-wider bg-gradient-to-r from-gray-50 to-gray-100">
                 Distribution Trend
               </th>
             </tr>
@@ -107,23 +106,13 @@ export const DashboardTable: React.FC<DashboardTableProps> = ({ data, scenarioNa
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {item.description}
                 </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="relative w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="absolute top-0 left-0 h-full bg-blue-400 rounded-full transition-all duration-300"
-                        style={{ width: `${item.similarity}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {item.similarity}%
-                    </span>
-                  </div>
+                <td className="px-6 py-4 text-sm font-medium text-gray-700">
+                  {item.similarity}%
                 </td>
                 <td className="px-6 py-4 text-right text-sm font-medium text-gray-700">
                   {item.sell_in_volume.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
                   })}
                 </td>
                 <td className="px-6 py-4">
