@@ -131,11 +131,11 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             {error}
           </div>
         ) : selectedOutput ? (
-          <div className="space-y-2">
+          <div className="space-y-6">
             {/* Scenario Title */}
             <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold text-gray-500 mb-4">
-                Prediction Dashboard : {selectedForm?.scenario || 'Unnamed Scenario'}
+              <h1 className="text-xl font-semibold text-gray-500">
+              Prediction Dashboard : {selectedForm?.scenario || 'Unnamed Scenario'}
               </h1>
               <div className="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent" />
             </div>
