@@ -131,14 +131,15 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             {error}
           </div>
         ) : selectedOutput ? (
-          <div className="space-y-6">
+          <div className="space-y-2">
             {/* Scenario Title */}
-            <div className="bg-white p-2 rounded-xl shadow">
-              <h1 className="text-2xl font-semibold text-gray-800">
-                {selectedForm?.scenario || 'Unnamed Scenario'}
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-semibold text-gray-500 mb-4">
+                Prediction Dashboard : {selectedForm?.scenario || 'Unnamed Scenario'}
               </h1>
+              <div className="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent" />
             </div>
-
+            
             {/* Retailer Cards Section */}
             <section className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center mb-6">
@@ -164,45 +165,50 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             {/* Chart Section */}
             <section className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center mb-6">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  Total Market Sales
-                </h2>
-                <div className="ml-4 h-px bg-gray-200 flex-1" />
+              <h2 className="text-lg font-semibold text-gray-800">
+                Total Market Sales
+              </h2>
+              <div className="ml-4 h-px bg-gray-200 flex-1" />
               </div>
               
-                <div className="flex gap-4 w-full">
-                <div className="h-[350px] w-[60%]">
-                {selectedOutput.predictionData ? (
-                  <PredictionChart
-                    data={selectedOutput.predictionData}
-                    scenarioName={selectedOutput.scenarioName}
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-gray-500">
-                    No prediction data available for this product
-                  </div>
-                )}
-                  </div>
-                  <div className="h-[350px] w-[40%]">
-                  {selectedOutput.predictionData ? (
-                    <RetailerDoughnut
-                    data={selectedOutput.predictionData}
-                    scenarioName={selectedOutput.scenarioName}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-500">
-                    No prediction data available for this product
-                    </div>
-                  )}
-                  </div>
+              <div className="flex gap-4 w-full">
+              <div className="h-[350px] w-[60%]">
+              {selectedOutput.predictionData ? (
+                <PredictionChart
+                data={selectedOutput.predictionData}
+                scenarioName={selectedOutput.scenarioName}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                No prediction data available for this product
+                </div>
+              )}
+              </div>
+              <div className="h-[350px] w-[40%]">
+              {selectedOutput.predictionData ? (
+                <RetailerDoughnut
+                data={selectedOutput.predictionData}
+                scenarioName={selectedOutput.scenarioName}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                No prediction data available for this product
+                </div>
+              )}
+              </div>
+              </div>
+              
+              {/* Footnotes */}
+              <div className="mt-4 text-xs text-gray-500">
+              * All the predicted distributions are displayed for one year from the launch date.
               </div>
             </section>
 
             {/* Similarity Basecodes Section */}
-            <section className="bg-white p-6 rounded-lg">
+            <section className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center mb-6">
                 <h2 className="text-lg font-semibold text-gray-800">
-                  Similarity Basecodes
+                  Similar Basecodes Details
                 </h2>
                 <div className="ml-4 h-px bg-gray-200 flex-1" />
               </div>
