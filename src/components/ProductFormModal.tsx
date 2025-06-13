@@ -36,6 +36,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [productRangeOptions, setProductRangeOptions] = useState<string[]>([]);
   const [segmentOptions, setSegmentOptions] = useState<string[]>([]);
   const [superSegmentOptions, setSuperSegmentOptions] = useState<string[]>([]);
+  const [baseNumberInMultipackOptions, setBaseNumberInMultipackOptions] = useState<string[]>([]);
+  const [flavorOptions, setFlavorOptions] = useState<string[]>([]);
+  const [chocoOptions, setChocoOptions] = useState<string[]>([]);
+  const [saltyOptions, setSaltyOptions] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -43,51 +47,26 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       const countryCode = COUNTRY_CODES[form.country as keyof typeof COUNTRY_CODES] || 'GB01';
       const categoryCode = CATEGORY_CODES[form.category as keyof typeof CATEGORY_CODES] || 'EUCO';
 
-      // Get sugar level options from the appropriate category section
-      const levelOfSugar = config[countryCode]?.[categoryCode]?.level_of_sugar;
-      if (levelOfSugar) {
-        const options = Object.values(levelOfSugar).flat() as string[];
-        setSugarLevelOptions(options);
-      } else {
-        setSugarLevelOptions([]);
-      }
+      // Helper function to get sorted options from config
+      const getSortedOptions = (key: string): string[] => {
+        const options = config[countryCode]?.[categoryCode]?.[key];
+        if (options && Array.isArray(options) && options.length > 0) {
+          return [...options].sort() as string[];
+        }
+        return [];
+      };
 
-      // Get packgroup from the appropriate category section
-      const packGroup = config[countryCode]?.[categoryCode]?.pack_group;
-      if (packGroup) {
-        const options_pg = Object.values(packGroup).flat() as string[];
-        setPackGroupOptions(options_pg);
-      } else {
-        setPackGroupOptions([]);
-      }
-
-      // Get product range from the appropriate category section
-      const productRange = config[countryCode]?.[categoryCode]?.product_range;
-      if (productRange) {
-        const options_pr = Object.values(productRange).flat() as string[];
-        setProductRangeOptions(options_pr);
-      } else {
-        setProductRangeOptions([]);
-      }
-
-      // Get segment from the appropriate category section
-      const segment = config[countryCode]?.[categoryCode]?.segment;
-      if (segment) {
-        const options_sg = Object.values(segment).flat() as string[];
-        setSegmentOptions(options_sg);
-      } else {
-        setSegmentOptions([]);
-      }
-
-      // Get super segment from the appropriate category section
-      const superSegment = config[countryCode]?.[categoryCode]?.supersegment;
-      if (superSegment) {
-        const options_ssg = Object.values(superSegment).flat() as string[];
-        setSuperSegmentOptions(options_ssg);
-      } else {
-        setSuperSegmentOptions([]);
-      }
-
+      // Get all options from the appropriate category section
+      setSugarLevelOptions(getSortedOptions('level_of_sugar'));
+      setPackGroupOptions(getSortedOptions('pack_group'));
+      setProductRangeOptions(getSortedOptions('product_range'));
+      setSegmentOptions(getSortedOptions('segment'));
+      setSuperSegmentOptions(getSortedOptions('supersegment'));
+      setBaseNumberInMultipackOptions(getSortedOptions('base_number_in_multipack'));
+      setFlavorOptions(getSortedOptions('flavour')); // Note the different spelling in config
+      setChocoOptions(getSortedOptions('choco'));
+      setSaltyOptions(getSortedOptions('salty'));
+      
     } catch (error) {
       console.error('Error parsing config:', error);
       setSugarLevelOptions([]);
@@ -95,6 +74,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setProductRangeOptions([]);
       setSegmentOptions([]);
       setSuperSegmentOptions([]);
+      setBaseNumberInMultipackOptions([]);
+      setFlavorOptions([]);
+      setChocoOptions([]);
+      setSaltyOptions([]);
     }
   }, [form.country, form.category]);
 
@@ -139,10 +122,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-4xl h-[90vh] m-4 flex flex-col">
         <div className="p-4 border-b flex justify-between items-center flex-shrink-0">
-          <h2 className="text-xl font-semibold">Product Details</h2>
-          <button
+          <h2 className="text-xl font-semibold">Product Details</h2>          <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-full"
+            aria-label="Close"
+            title="Close"
           >
             <X size={20} />
           </button>
@@ -151,10 +135,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         <div className="p-6 overflow-y-auto flex-grow scrollbar-thin">
             <div className="flex justify-between items-center mb-8 px-2">
             <div className="flex items-center gap-4">
-              {!showAiQuery ? (
-              <button
+              {!showAiQuery ? (              <button
                 onClick={() => setShowAiQuery(true)}
                 className="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-all shadow-sm flex items-center gap-2 text-sm font-medium group"
+                aria-label="Open AI Assistant"
+                title="Open AI Assistant"
               >
                 <span className="opacity-90">AI Assistant</span>
                 <div className="w-4 h-4 rounded-full bg-blue-500/10 flex items-center justify-center">
@@ -171,15 +156,16 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 className="flex-1 px-4 py-2.5 rounded-l-lg focus:outline-none text-sm text-gray-600"
                 onKeyPress={(e) => e.key === 'Enter' && handleAiQuery()}
                 />
-                <div className="border-l border-gray-200">
-                <button
+                <div className="border-l border-gray-200">                <button
                   onClick={handleAiQuery}
                   disabled={isLoading}
                   className="px-4 py-2.5 text-blue-600 hover:bg-gray-50 rounded-r-lg transition-all disabled:text-gray-300 h-full"
+                  aria-label="Submit AI query"
+                  title="Submit AI query"
                 >
                   {isLoading ? 
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"/> : 
-                  <Send size={16} className="transform hover:translate-x-1 transition-transform"/>
+                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" aria-hidden="true"/> : 
+                  <Send size={16} className="transform hover:translate-x-1 transition-transform" aria-hidden="true"/>
                   }
                 </button>
                 </div>
@@ -268,28 +254,34 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 onChange={(value) => handleChange('superSegment', value)}
                 options={superSegmentOptions}
               />
-            </FormGroup>
-
-            <FormGroup title="Product Specifications">
+            </FormGroup>            <FormGroup title="Product Specifications">
               <FormField
                 label="Base Number in Multipack"
+                type="select"
                 value={form.baseNumberInMultipack}
                 onChange={(value) => handleChange('baseNumberInMultipack', value)}
+                options={baseNumberInMultipackOptions}
               />
               <FormField
                 label="Flavor"
+                type="select"
                 value={form.flavor}
                 onChange={(value) => handleChange('flavor', value)}
+                options={flavorOptions}
               />
               <FormField
                 label="Chocolate Type"
+                type="select"
                 value={form.choco}
                 onChange={(value) => handleChange('choco', value)}
+                options={chocoOptions}
               />
               <FormField
                 label="Salt Content"
+                type="select"
                 value={form.salty}
                 onChange={(value) => handleChange('salty', value)}
+                options={saltyOptions}
               />
             </FormGroup>
 
@@ -310,16 +302,19 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </div>
         </div>
 
-        <div className="p-4 border-t flex justify-end gap-4 flex-shrink-0">
-          <button
+        <div className="p-4 border-t flex justify-end gap-4 flex-shrink-0">          <button
             onClick={onClose}
             className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            aria-label="Cancel"
+            title="Cancel"
           >
             Cancel
           </button>
           <button
             onClick={onSave}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            aria-label="Save"
+            title="Save"
           >
             Save
           </button>

@@ -118,7 +118,7 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
       listPricePerUnitMl: Number(form.listPricePerUnitMl),
       weightPerUnitMl: Number(form.weightPerUnitMl),
       similarityData: form.similarityData || {},
-      sampleOutput: true
+      sampleOutput: false
     };
 
     console.log('Submitting product details with transformed data:', transformedData);
@@ -170,7 +170,7 @@ export const submitProductDetails = async (form: ProductForm): Promise<ProductSu
           data: undefined
         };
       } else {
-        console.log('NNNNNNNNNN Valid data received:', { 
+        console.log('Valid data received:', { 
           predictions: predictions,
           similarity: similarity 
         });

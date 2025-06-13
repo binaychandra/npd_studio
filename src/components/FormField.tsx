@@ -21,12 +21,17 @@ export const FormField: React.FC<FormFieldProps> = ({
     <div className={className}>
       <label className="block text-sm font-medium text-gray-600 mb-1">
         {label}
-      </label>
-      {type === 'select' ? (
-        <select
+      </label>      {type === 'select' ? (        <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full p-2 border rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          disabled={options.length === 0}
+          className={`w-full p-2 border rounded-md text-sm ${
+            options.length === 0 
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'focus:ring-1 focus:ring-blue-500 focus:border-blue-500'
+          }`}
+          aria-label={label}
+          title={label}
         >
           <option value="">Select {label}</option>
           {options.map((option) => (
@@ -35,12 +40,13 @@ export const FormField: React.FC<FormFieldProps> = ({
             </option>
           ))}
         </select>
-      ) : (
-        <input
+      ) : (        <input
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="w-full p-2 border rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          placeholder={`Enter ${label}`}
+          aria-label={label}
         />
       )}
     </div>
